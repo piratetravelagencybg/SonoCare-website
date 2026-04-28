@@ -256,14 +256,6 @@ async function handleBooking(event) {
     return;
   }
 
-  if (!supabase) {
-    showFormFeedback(
-      "Supabase не е конфигуриран. Добавете anon public key в main.js, за да активирате системата.",
-      "error"
-    );
-    return;
-  }
-
   const payload = {
     service: serviceInput.value.trim(),
     patient_name: document.querySelector("#patient-name").value.trim(),
@@ -279,18 +271,24 @@ async function handleBooking(event) {
   setSubmitting(true);
 
   try {
-    const slotTaken = await checkIfSlotTaken(payload.appointment_date, payload.appointment_time);
+    const bookingResponse = await fetch("/api/book-appointment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-    if (slotTaken) {
-      showFormFeedback("Този час вече е зает.", "error");
-      await renderHours(payload.appointment_date);
-      return;
-    }
+    const result = await bookingResponse.json().catch(() => ({}));
 
-    const { error } = await supabase.from("appointments").insert([payload]);
+    if (!bookingResponse.ok) {
+      if (bookingResponse.status === 409 || result?.code === "SLOT_TAKEN") {
+        showFormFeedback("Този час вече е зает.", "error");
+        await renderHours(payload.appointment_date);
+        return;
+      }
 
-    if (error) {
-      throw error;
+      throw new Error(result?.error || "Booking request failed");
     }
 
     bookingForm.reset();
@@ -299,20 +297,15 @@ async function handleBooking(event) {
     selectedTimeInput.value = "";
 
     showFormFeedback(
-      "Вашият час беше записан успешно. Ще получите потвърждение по имейл.",
+      result?.emailSent
+        ? "Вашият час беше записан успешно. Ще получите потвърждение по имейл."
+        : "Вашият час беше записан успешно. Заявката е получена от кабинета.",
       "success"
     );
 
     await renderHours(payload.appointment_date);
   } catch (error) {
     console.error(error);
-
-    if (error?.code === "23505") {
-      showFormFeedback("Този час вече е зает.", "error");
-      await renderHours(payload.appointment_date);
-      return;
-    }
-
     showFormFeedback(
       "Възникна проблем при записването. Моля, опитайте отново след малко.",
       "error"
