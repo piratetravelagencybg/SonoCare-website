@@ -2,10 +2,19 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SUPABASE_URL = "https://qpxkawjilyuibecnyoim.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_2dJPlMT5KmWCy-H140djow_9sTHL0Hj";
+const EMAILJS_SERVICE_ID = "service_o435za2";
+const EMAILJS_TEMPLATE_ID = "template_4hm3d0l";
+const EMAILJS_PUBLIC_KEY = "QoSvUgNg2fNBtHnyF";
+const CLINIC_NOTIFICATION_EMAIL = "Sonocare.bg@gmail.com";
 
 const supabaseConfigured =
   SUPABASE_ANON_KEY !== "YOUR_ANON_PUBLIC_KEY" &&
   SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY";
+
+const emailJsConfigured =
+  EMAILJS_SERVICE_ID !== "YOUR_EMAILJS_SERVICE_ID" &&
+  EMAILJS_TEMPLATE_ID !== "YOUR_EMAILJS_TEMPLATE_ID" &&
+  EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY";
 
 const supabase = supabaseConfigured
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -296,10 +305,16 @@ async function handleBooking(event) {
     selectedTime = "";
     selectedTimeInput.value = "";
 
+    let notificationSent = Boolean(result?.emailSent);
+
+    if (!notificationSent && emailJsConfigured) {
+      notificationSent = await sendEmailJsNotification(payload);
+    }
+
     showFormFeedback(
-      result?.emailSent
-        ? "Вашият час беше записан успешно. Ще получите потвърждение по имейл."
-        : "Вашият час беше записан успешно. Заявката е получена от кабинета.",
+      notificationSent
+        ? "Вашият час беше записан успешно. Заявката е изпратена към кабинета."
+        : "Вашият час беше записан успешно. Заявката е запазена в системата.",
       "success"
     );
 
@@ -337,4 +352,38 @@ function showFormFeedback(message, type) {
 function clearFormFeedback() {
   feedback.textContent = "";
   feedback.className = "form-feedback";
+}
+
+async function sendEmailJsNotification(payload) {
+  const emailPayload = {
+    service_id: EMAILJS_SERVICE_ID,
+    template_id: EMAILJS_TEMPLATE_ID,
+    user_id: EMAILJS_PUBLIC_KEY,
+    template_params: {
+      to_email: CLINIC_NOTIFICATION_EMAIL,
+      clinic_email: CLINIC_NOTIFICATION_EMAIL,
+      patient_name: payload.patient_name,
+      patient_phone: payload.patient_phone,
+      patient_email: payload.patient_email,
+      service: payload.service,
+      appointment_date: payload.appointment_date,
+      appointment_time: payload.appointment_time,
+      notes: payload.notes || "Няма",
+    },
+  };
+
+  try {
+    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(emailPayload),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("EmailJS notification error", error);
+    return false;
+  }
 }
