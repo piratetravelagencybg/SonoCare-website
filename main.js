@@ -1,3 +1,4 @@
+import emailjs from "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm";
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const SUPABASE_URL = "https://qpxkawjilyuibecnyoim.supabase.co";
@@ -41,6 +42,12 @@ let bookedHours = [];
 initializeBooking();
 
 function initializeBooking() {
+  if (emailJsConfigured) {
+    emailjs.init({
+      publicKey: EMAILJS_PUBLIC_KEY,
+    });
+  }
+
   const today = getLocalDateString(new Date());
   dateInput.min = today;
   dateInput.value = today;
@@ -355,33 +362,27 @@ function clearFormFeedback() {
 }
 
 async function sendEmailJsNotification(payload) {
-  const emailPayload = {
-    service_id: EMAILJS_SERVICE_ID,
-    template_id: EMAILJS_TEMPLATE_ID,
-    user_id: EMAILJS_PUBLIC_KEY,
-    template_params: {
-      to_email: CLINIC_NOTIFICATION_EMAIL,
-      clinic_email: CLINIC_NOTIFICATION_EMAIL,
-      patient_name: payload.patient_name,
+  try {
+    const response = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      {
+        to_email: CLINIC_NOTIFICATION_EMAIL,
+        clinic_email: CLINIC_NOTIFICATION_EMAIL,
+        patient_name: payload.patient_name,
       patient_phone: payload.patient_phone,
       patient_email: payload.patient_email,
-      service: payload.service,
-      appointment_date: payload.appointment_date,
-      appointment_time: payload.appointment_time,
-      notes: payload.notes || "Няма",
-    },
-  };
-
-  try {
-    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+        service: payload.service,
+        appointment_date: payload.appointment_date,
+        appointment_time: payload.appointment_time,
+        notes: payload.notes || "Няма",
       },
-      body: JSON.stringify(emailPayload),
-    });
+      {
+        publicKey: EMAILJS_PUBLIC_KEY,
+      }
+    );
 
-    return response.ok;
+    return response?.status === 200;
   } catch (error) {
     console.error("EmailJS notification error", error);
     return false;
