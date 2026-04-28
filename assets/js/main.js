@@ -44,7 +44,7 @@ if (topbar && menuButton) {
     <a href="${basePath}index.html#top">Начало</a>
     <a href="${basePath}index.html#services">Услуги</a>
     <a href="${basePath}doctor.html">Д-р Доленска</a>
-    <a href="${basePath}index.html#booking">Запази час</a>
+    <a href="${basePath}booking.html">Запази час</a>
     <a href="${basePath}index.html#contact">Контакти</a>
   `;
   topbar.insertAdjacentElement("afterend", menu);

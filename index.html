@@ -43,7 +43,7 @@
           </ul>
 
           <div class="hero-actions">
-            <a class="btn primary" href="#booking">
+            <a class="btn primary" href="booking.html">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
               </svg>
@@ -62,7 +62,7 @@
       <section class="services" id="services">
         <div class="section-title">
           <h2>Нашите услуги</h2>
-          <a href="#booking">Виж всички</a>
+          <a href="booking.html">Запази час</a>
         </div>
         <div class="service-grid">
           <article class="service-card">
@@ -104,20 +104,15 @@
 <section class="booking-card" id="booking">
         <p>Онлайн заявка</p>
         <h2>Запази удобен час</h2>
-        <form class="booking-form">
-          <input type="text" name="name" placeholder="Име" required />
-          <input type="tel" name="phone" placeholder="Телефон" required />
-          <select name="service" required>
-            <option value="">Услуга</option>
-            <option>Ехография на млечни жлези</option>
-            <option>Коремни органи и малък таз</option>
-            <option>Щитовидна жлеза</option>
-            <option>Детска ехография</option>
-          </select>
-          <input type="date" name="date" required />
-          <button class="btn primary" type="submit">Запази час</button>
-          <small class="form-note" aria-live="polite"></small>
-        </form>
+        <div class="booking-summary">
+          <span>Записването се извършва през отделна страница с избор на услуга, дата и свободен час.</span>
+          <div class="schedule-list">
+            <div><b>Понеделник – Петък</b><small>16:00 – 18:00</small></div>
+            <div><b>Събота</b><small>Почивен ден</small></div>
+            <div><b>Неделя</b><small>Почивен ден</small></div>
+          </div>
+          <a class="btn primary booking-link" href="booking.html">Към онлайн записване</a>
+        </div>
       </section>
 
       <section class="contact-card">
@@ -134,7 +129,7 @@
         </svg>
         Обади се
       </a>
-      <a href="#booking">
+      <a href="booking.html">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
         </svg>

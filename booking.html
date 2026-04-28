@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Онлайн записване на час в SonoCare – бърза и удобна система за избор на услуга, дата и свободен час."
+    />
+    <title>SonoCare | Запази час</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="booking-page">
+      <header class="booking-topbar" aria-label="Основна навигация">
+        <a class="booking-logo" href="index.html" aria-label="SonoCare начало">
+          <img src="logo.png" alt="SonoCare" />
+        </a>
+        <a class="back-home" href="index.html">Назад</a>
+      </header>
+
+      <section class="booking-hero">
+        <div class="booking-hero-copy">
+          <span class="eyebrow">Онлайн записване</span>
+          <h1>Изберете удобен час за преглед.</h1>
+          <p>
+            Спокоен и ясен процес за записване на ехографски преглед с бърз избор на дата, час и услуга.
+          </p>
+        </div>
+        <div class="hero-badge-card">
+          <strong>Работно време</strong>
+          <span>Понеделник – Петък: 16:00 – 18:00</span>
+          <span>Събота: почивен ден</span>
+          <span>Неделя: почивен ден</span>
+        </div>
+      </section>
+
+      <section class="booking-shell" aria-labelledby="booking-title">
+        <div class="booking-card">
+          <div class="booking-field date-service-row">
+            <label for="service">Изберете услуга</label>
+            <div class="field-shell">
+              <select id="service" name="service" required>
+                <option value="">Услуга</option>
+                <option value="Ехография на млечни жлези">Ехография на млечни жлези</option>
+                <option value="Коремни органи и малък таз">Коремни органи и малък таз</option>
+                <option value="Щитовидна жлеза">Щитовидна жлеза</option>
+                <option value="Детска ехография">Детска ехография</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="booking-field">
+            <label for="appointment-date">Изберете удобна дата</label>
+            <div class="field-shell field-shell-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"></path>
+              </svg>
+              <input id="appointment-date" name="appointment-date" type="date" required />
+            </div>
+          </div>
+
+          <section class="hours-panel" aria-labelledby="booking-title">
+            <div class="hours-panel-header">
+              <div>
+                <h2 id="booking-title">Свободни часове</h2>
+                <p class="hours-help">Изберете час за Вашия преглед.</p>
+              </div>
+              <div class="hours-meta">
+                <span id="working-hours-note">Първо изберете дата</span>
+              </div>
+            </div>
+
+            <div id="hours-loading" class="loading-state" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              Зареждане на наличните часове...
+            </div>
+
+            <div id="hours-message" class="hours-message" role="status" aria-live="polite">
+              Изберете дата, за да видите свободните часове.
+            </div>
+
+            <div id="hours-grid" class="hours-grid" aria-label="Свободни часове"></div>
+          </section>
+
+          <form id="booking-form" novalidate>
+            <div class="booking-field">
+              <label for="patient-name">Вашето име</label>
+              <div class="field-shell field-shell-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-7 9a7 7 0 0 1 14 0"></path>
+                </svg>
+                <input id="patient-name" name="patient-name" type="text" autocomplete="name" required />
+              </div>
+            </div>
+
+            <div class="booking-field">
+              <label for="patient-phone">Телефон</label>
+              <div class="field-shell field-shell-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5.5 4.5 8.2 3a1.8 1.8 0 0 1 2.4.7l1.2 2.2a1.8 1.8 0 0 1-.4 2.2L10 9.4a12.2 12.2 0 0 0 4.6 4.6l1.3-1.4a1.8 1.8 0 0 1 2.2-.4l2.2 1.2a1.8 1.8 0 0 1 .7 2.4l-1.5 2.7c-.4.8-1.3 1.2-2.2 1.1C10.2 18.6 5.4 13.8 4.4 6.7c-.1-.9.3-1.8 1.1-2.2Z"></path>
+                </svg>
+                <input id="patient-phone" name="patient-phone" type="tel" autocomplete="tel" required />
+              </div>
+            </div>
+
+            <div class="booking-field">
+              <label for="patient-email">Имейл адрес</label>
+              <div class="field-shell field-shell-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16v12H4z"></path>
+                  <path d="m4 7 8 6 8-6"></path>
+                </svg>
+                <input id="patient-email" name="patient-email" type="email" autocomplete="email" required />
+              </div>
+            </div>
+
+            <div class="booking-field">
+              <label for="notes">Бележка (по желание)</label>
+              <div class="field-shell field-shell-icon field-shell-textarea">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 7h8M8 12h8M8 17h5"></path>
+                  <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path>
+                </svg>
+                <textarea id="notes" name="notes" rows="3" placeholder="Допълнителна информация"></textarea>
+              </div>
+            </div>
+
+            <input id="selected-time" name="selected-time" type="hidden" />
+
+            <div id="form-feedback" class="form-feedback" role="status" aria-live="polite"></div>
+
+            <button id="submit-button" class="submit-button" type="submit">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"></path>
+              </svg>
+              <span>Запази час</span>
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <nav class="sticky-cta" aria-label="Бързи действия">
+      <a href="tel:+3598XXXXXXXX">Обади се</a>
+      <a href="#booking-title">Запази час</a>
+    </nav>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
