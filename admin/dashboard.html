@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SonoCare Admin | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body class="admin-dashboard-page">
+    <main class="admin-shell">
+      <aside class="admin-sidebar">
+        <a class="admin-brand" href="../index.html" aria-label="SonoCare начало">
+          <img src="../transparent logo sonocare.png" alt="SonoCare" />
+        </a>
+
+        <nav class="admin-nav" aria-label="Администрация">
+          <button class="admin-nav-link is-active" type="button" data-target="overview-section">Табло</button>
+          <button class="admin-nav-link" type="button" data-target="appointments-section">Часове</button>
+          <button class="admin-nav-link" type="button" data-target="blog-section">Блог</button>
+        </nav>
+
+        <div class="admin-sidebar-meta">
+          <p id="admin-user-email">Администратор</p>
+          <button id="admin-logout-button" type="button" class="admin-ghost-button">Изход</button>
+        </div>
+      </aside>
+
+      <section class="admin-content">
+        <header class="admin-content-header">
+          <div>
+            <span class="eyebrow">SonoCare Admin</span>
+            <h1>Управление на кабинета</h1>
+          </div>
+          <p>Всички данни се зареждат и записват директно в Supabase.</p>
+        </header>
+
+        <section id="overview-section" class="admin-section is-active">
+          <div class="admin-section-heading">
+            <div>
+              <h2>Обобщение</h2>
+              <p>Бърз поглед върху последните активности.</p>
+            </div>
+          </div>
+
+          <div class="overview-grid">
+            <article class="overview-card">
+              <span>Общо записвания</span>
+              <strong id="overview-appointments-count">0</strong>
+            </article>
+            <article class="overview-card">
+              <span>Публикувани статии</span>
+              <strong id="overview-posts-count">0</strong>
+            </article>
+          </div>
+
+          <div class="overview-panels">
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3>Последни записвания</h3>
+              </div>
+              <div id="overview-latest-appointments" class="admin-list"></div>
+            </section>
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3>Последни статии</h3>
+              </div>
+              <div id="overview-latest-posts" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="appointments-section" class="admin-section">
+          <div class="admin-section-heading">
+            <div>
+              <h2>Часове и наличност</h2>
+              <p>Управление на записванията и блокиране на дни и часове.</p>
+            </div>
+          </div>
+
+          <div class="admin-grid two-up">
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3>Блокирай ден</h3>
+              </div>
+              <form id="block-day-form" class="admin-form compact-form">
+                <label>
+                  Дата
+                  <input id="block-day-date" type="date" required />
+                </label>
+                <button type="submit" class="admin-primary-button">Блокирай ден</button>
+              </form>
+              <div id="blocked-days-list" class="admin-list"></div>
+            </section>
+
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3>Блокирай час</h3>
+              </div>
+              <form id="block-hour-form" class="admin-form compact-form">
+                <label>
+                  Дата
+                  <input id="block-hour-date" type="date" required />
+                </label>
+                <label>
+                  Час
+                  <input id="block-hour-time" type="time" step="1800" required />
+                </label>
+                <button type="submit" class="admin-primary-button">Блокирай час</button>
+              </form>
+              <div id="blocked-hours-list" class="admin-list"></div>
+            </section>
+          </div>
+
+          <section class="admin-card">
+            <div class="admin-card-header">
+              <h3>Всички записвания</h3>
+            </div>
+            <div id="admin-appointments-list" class="admin-list"></div>
+          </section>
+        </section>
+
+        <section id="blog-section" class="admin-section">
+          <div class="admin-section-heading">
+            <div>
+              <h2>Блог</h2>
+              <p>Създаване, редакция и изтриване на статии.</p>
+            </div>
+          </div>
+
+          <div class="admin-grid two-up">
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3 id="blog-form-title">Нова статия</h3>
+                <button id="blog-reset-button" type="button" class="admin-ghost-button" hidden>Отказ</button>
+              </div>
+
+              <form id="blog-form" class="admin-form">
+                <input id="blog-post-id" type="hidden" />
+                <label>
+                  Заглавие
+                  <input id="blog-title" type="text" required />
+                </label>
+                <label>
+                  Дата
+                  <input id="blog-date" type="date" required />
+                </label>
+                <label>
+                  Снимка (URL)
+                  <input id="blog-image" type="url" placeholder="https://..." />
+                </label>
+                <label>
+                  Съдържание
+                  <textarea id="blog-content" rows="10" required></textarea>
+                </label>
+                <div id="blog-form-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
+                <button id="blog-submit-button" type="submit" class="admin-primary-button">Публикувай</button>
+              </form>
+            </section>
+
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3>Публикувани статии</h3>
+              </div>
+              <div id="admin-posts-list" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

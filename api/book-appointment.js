@@ -1,5 +1,9 @@
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const {
+  isMissingRelationError,
+  supabaseInsert,
+  supabaseSelect,
+} = require("./_supabase");
+
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || "Sonocare.bg@gmail.com";
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID;
@@ -21,13 +25,6 @@ module.exports = async (request, response) => {
     return response.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    return response.status(500).json({
-      error: "Server configuration is incomplete.",
-      code: "CONFIG_ERROR",
-    });
-  }
-
   try {
     const payload = normalizePayload(request.body);
     const validationError = validatePayload(payload);
@@ -36,11 +33,27 @@ module.exports = async (request, response) => {
       return response.status(400).json({ error: validationError, code: "VALIDATION_ERROR" });
     }
 
+    const blockedDay = await isBlockedDay(payload.appointment_date);
+    if (blockedDay) {
+      return response.status(409).json({
+        error: "Тази дата не е налична за записване.",
+        code: "DAY_BLOCKED",
+      });
+    }
+
+    const blockedHour = await isBlockedHour(payload.appointment_date, payload.appointment_time);
+    if (blockedHour) {
+      return response.status(409).json({
+        error: "Този час е блокиран и не е наличен за записване.",
+        code: "HOUR_BLOCKED",
+      });
+    }
+
     const slotTaken = await checkIfSlotTaken(payload.appointment_date, payload.appointment_time);
 
     if (slotTaken) {
       return response.status(409).json({
-        error: "Този час вече е зает",
+        error: "Този час вече е зает.",
         code: "SLOT_TAKEN",
       });
     }
@@ -58,7 +71,7 @@ module.exports = async (request, response) => {
 
     if (error?.code === "23505") {
       return response.status(409).json({
-        error: "Този час вече е зает",
+        error: "Този час вече е зает.",
         code: "SLOT_TAKEN",
       });
     }
@@ -99,44 +112,54 @@ function validatePayload(payload) {
   return "";
 }
 
-async function checkIfSlotTaken(date, time) {
-  const url = new URL(`${SUPABASE_URL}/rest/v1/appointments`);
-  url.searchParams.set("select", "id");
-  url.searchParams.set("appointment_date", `eq.${date}`);
-  url.searchParams.set("appointment_time", `eq.${time}`);
-  url.searchParams.set("limit", "1");
+async function isBlockedDay(date) {
+  try {
+    const days = await supabaseSelect("blocked_days", {
+      select: "id",
+      date: `eq.${date}`,
+      limit: 1,
+    });
 
-  const result = await fetch(url, {
-    headers: getSupabaseHeaders(),
+    return Array.isArray(days) && days.length > 0;
+  } catch (error) {
+    if (isMissingRelationError(error)) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+async function isBlockedHour(date, time) {
+  try {
+    const hours = await supabaseSelect("blocked_hours", {
+      select: "id",
+      date: `eq.${date}`,
+      time: `eq.${time}`,
+      limit: 1,
+    });
+
+    return Array.isArray(hours) && hours.length > 0;
+  } catch (error) {
+    if (isMissingRelationError(error)) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+async function checkIfSlotTaken(date, time) {
+  const bookings = await supabaseSelect("appointments", {
+    select: "id",
+    appointment_date: `eq.${date}`,
+    appointment_time: `eq.${time}`,
+    limit: 1,
   });
 
-  if (!result.ok) {
-    throw new Error(`Supabase slot check failed: ${result.status}`);
-  }
-
-  const data = await result.json();
-  return Array.isArray(data) && data.length > 0;
+  return Array.isArray(bookings) && bookings.length > 0;
 }
 
 async function insertAppointment(payload) {
-  const result = await fetch(`${SUPABASE_URL}/rest/v1/appointments`, {
-    method: "POST",
-    headers: {
-      ...getSupabaseHeaders(),
-      "Content-Type": "application/json",
-      Prefer: "return=representation",
-    },
-    body: JSON.stringify([payload]),
-  });
-
-  if (!result.ok) {
-    const error = await safeJson(result);
-    const enhancedError = new Error(error?.message || `Supabase insert failed: ${result.status}`);
-    enhancedError.code = error?.code;
-    throw enhancedError;
-  }
-
-  const data = await result.json();
+  const data = await supabaseInsert("appointments", payload);
   return data?.[0] ?? null;
 }
 
@@ -170,19 +193,4 @@ async function sendNotificationEmail(payload) {
   });
 
   return emailJsResponse.ok;
-}
-
-function getSupabaseHeaders() {
-  return {
-    apikey: SUPABASE_SERVICE_ROLE_KEY,
-    Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-  };
-}
-
-async function safeJson(result) {
-  try {
-    return await result.json();
-  } catch {
-    return null;
-  }
 }

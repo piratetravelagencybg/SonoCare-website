@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SonoCare Admin | Вход</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body class="admin-auth-page">
+    <main class="admin-auth-shell">
+      <section class="admin-auth-card">
+        <a class="admin-auth-logo" href="../index.html" aria-label="SonoCare начало">
+          <img src="../transparent logo sonocare.png" alt="SonoCare" />
+        </a>
+        <div class="admin-auth-copy">
+          <span class="eyebrow">Admin Panel</span>
+          <h1>Вход за управление</h1>
+          <p>Достъп до записвания, блокиране на часове и публикуване на статии.</p>
+        </div>
+
+        <form id="admin-login-form" class="admin-auth-form" novalidate>
+          <label>
+            Имейл
+            <input id="admin-email" name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Парола
+            <input
+              id="admin-password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+          </label>
+          <div id="admin-login-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
+          <button id="admin-login-button" type="submit" class="admin-primary-button">Вход</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

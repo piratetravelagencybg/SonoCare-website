@@ -1,15 +1,3 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const SUPABASE_URL = "https://qpxkawjilyuibecnyoim.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_2dJPlMT5KmWCy-H140djow_9sTHL0Hj";
-const supabaseConfigured =
-  SUPABASE_ANON_KEY !== "YOUR_ANON_PUBLIC_KEY" &&
-  SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY";
-
-const supabase = supabaseConfigured
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
 const BUSINESS_HOURS = {
   weekday: { start: "16:00", end: "18:00" },
 };
@@ -27,6 +15,8 @@ const feedback = document.querySelector("#form-feedback");
 
 let selectedTime = "";
 let bookedHours = [];
+let blockedHours = [];
+let selectedDayBlocked = false;
 
 initializeBooking();
 
@@ -37,13 +27,6 @@ function initializeBooking() {
 
   dateInput.addEventListener("change", handleDateChange);
   bookingForm.addEventListener("submit", handleBooking);
-
-  if (!supabaseConfigured) {
-    showFormFeedback(
-      "Добавете Вашия Supabase anon public key в main.js, за да активирате реалното записване.",
-      "error"
-    );
-  }
 
   handleDateChange();
 }
@@ -91,6 +74,7 @@ async function handleDateChange() {
   const selectedDate = dateInput.value;
   selectedTime = "";
   selectedTimeInput.value = "";
+  selectedDayBlocked = false;
   clearFormFeedback();
 
   if (!selectedDate) {
@@ -110,26 +94,26 @@ async function handleDateChange() {
   await renderHours(selectedDate);
 }
 
-async function fetchBookedHours(date) {
-  if (!supabase) {
-    return [];
+async function fetchAvailability(date) {
+  const response = await fetch(`/api/booking-availability?date=${encodeURIComponent(date)}`);
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(result?.error || "Availability request failed");
   }
 
-  const { data, error } = await supabase
-    .from("appointments")
-    .select("appointment_time")
-    .eq("appointment_date", date);
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []).map((item) => item.appointment_time);
+  return {
+    blockedDay: Boolean(result?.blockedDay),
+    bookedHours: Array.isArray(result?.bookedHours) ? result.bookedHours : [],
+    blockedHours: Array.isArray(result?.blockedHours) ? result.blockedHours : [],
+  };
 }
 
 async function renderHours(date) {
   const businessHours = getBusinessHours(date);
   hoursGrid.innerHTML = "";
+  bookedHours = [];
+  blockedHours = [];
 
   if (!businessHours) {
     hoursNote.textContent = "Почивни дни";
@@ -142,7 +126,18 @@ async function renderHours(date) {
   setHoursMessage("Зареждане на свободните часове...");
 
   try {
-    bookedHours = await fetchBookedHours(date);
+    const availability = await fetchAvailability(date);
+    bookedHours = availability.bookedHours;
+    blockedHours = availability.blockedHours;
+    selectedDayBlocked = availability.blockedDay;
+
+    if (selectedDayBlocked) {
+      hoursGrid.innerHTML = "";
+      hoursNote.textContent = "Денят е блокиран";
+      setHoursMessage("Тази дата е блокирана и не приема записвания.", true);
+      return;
+    }
+
     const timeSlots = buildSlots(businessHours.start, businessHours.end);
 
     if (!timeSlots.length) {
@@ -154,14 +149,15 @@ async function renderHours(date) {
 
     timeSlots.forEach((time) => {
       const isBooked = bookedHours.includes(time);
+      const isBlocked = blockedHours.includes(time);
       const button = document.createElement("button");
       button.type = "button";
       button.className = "hour-button";
       button.textContent = `${time}ч.`;
       button.dataset.time = time;
-      button.disabled = isBooked;
+      button.disabled = isBooked || isBlocked;
 
-      if (isBooked) {
+      if (isBooked || isBlocked) {
         button.classList.add("is-disabled");
         button.setAttribute("aria-disabled", "true");
       } else {
@@ -172,11 +168,16 @@ async function renderHours(date) {
     });
 
     hoursGrid.appendChild(fragment);
-    setHoursMessage(
-      bookedHours.length
-        ? "Заетите часове са деактивирани."
-        : "Всички показани часове в момента са свободни."
-    );
+
+    if (blockedHours.length && bookedHours.length) {
+      setHoursMessage("Заетите и блокираните часове са деактивирани.");
+    } else if (blockedHours.length) {
+      setHoursMessage("Блокираните часове са деактивирани.");
+    } else if (bookedHours.length) {
+      setHoursMessage("Заетите часове са деактивирани.");
+    } else {
+      setHoursMessage("Всички показани часове в момента са свободни.");
+    }
   } catch (error) {
     console.error(error);
     setHoursMessage("Възникна проблем при зареждането на часовете. Опитайте отново.", true);
@@ -215,6 +216,14 @@ function validateForm() {
     return "Моля, изберете час за преглед.";
   }
 
+  if (selectedDayBlocked) {
+    return "Тази дата е блокирана и не приема записвания.";
+  }
+
+  if (blockedHours.includes(selectedTime)) {
+    return "Този час е блокиран и не е наличен.";
+  }
+
   if (isPastDate(appointmentDate)) {
     return "Не може да запишете час за минала дата.";
   }
@@ -228,21 +237,6 @@ function validateForm() {
   }
 
   return "";
-}
-
-async function checkIfSlotTaken(selectedDate, selectedHour) {
-  const { data, error } = await supabase
-    .from("appointments")
-    .select("id")
-    .eq("appointment_date", selectedDate)
-    .eq("appointment_time", selectedHour)
-    .limit(1);
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []).length > 0;
 }
 
 async function handleBooking(event) {
@@ -281,8 +275,11 @@ async function handleBooking(event) {
     const result = await bookingResponse.json().catch(() => ({}));
 
     if (!bookingResponse.ok) {
-      if (bookingResponse.status === 409 || result?.code === "SLOT_TAKEN") {
-        showFormFeedback("Този час вече е зает.", "error");
+      if (
+        bookingResponse.status === 409 &&
+        ["SLOT_TAKEN", "DAY_BLOCKED", "HOUR_BLOCKED"].includes(result?.code)
+      ) {
+        showFormFeedback(result?.error || "Този час вече не е наличен.", "error");
         await renderHours(payload.appointment_date);
         return;
       }
@@ -299,7 +296,7 @@ async function handleBooking(event) {
 
     showFormFeedback(
       notificationSent
-        ? "Вашият час беше записан успешно. Заявката е изпратена към кабинета."
+        ? "Вашият час беше записан успешно. Ще получите потвърждение по имейл."
         : "Вашият час беше записан успешно. Заявката е запазена в системата.",
       "success"
     );
