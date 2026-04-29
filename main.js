@@ -1,21 +1,10 @@
-import emailjs from "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm";
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const SUPABASE_URL = "https://qpxkawjilyuibecnyoim.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_2dJPlMT5KmWCy-H140djow_9sTHL0Hj";
-const EMAILJS_SERVICE_ID = "service_o435za2";
-const EMAILJS_TEMPLATE_ID = "template_4hm3d0l";
-const EMAILJS_PUBLIC_KEY = "QoSvUgNg2fNBtHnyF";
-const CLINIC_NOTIFICATION_EMAIL = "Sonocare.bg@gmail.com";
-
 const supabaseConfigured =
   SUPABASE_ANON_KEY !== "YOUR_ANON_PUBLIC_KEY" &&
   SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY";
-
-const emailJsConfigured =
-  EMAILJS_SERVICE_ID !== "YOUR_EMAILJS_SERVICE_ID" &&
-  EMAILJS_TEMPLATE_ID !== "YOUR_EMAILJS_TEMPLATE_ID" &&
-  EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY";
 
 const supabase = supabaseConfigured
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -42,12 +31,6 @@ let bookedHours = [];
 initializeBooking();
 
 function initializeBooking() {
-  if (emailJsConfigured) {
-    emailjs.init({
-      publicKey: EMAILJS_PUBLIC_KEY,
-    });
-  }
-
   const today = getLocalDateString(new Date());
   dateInput.min = today;
   dateInput.value = today;
@@ -312,13 +295,7 @@ async function handleBooking(event) {
     selectedTime = "";
     selectedTimeInput.value = "";
 
-    let notificationSent = false;
-
-    if (emailJsConfigured) {
-      notificationSent = await sendEmailJsNotification(payload);
-    } else if (result?.emailSent) {
-      notificationSent = true;
-    }
+    const notificationSent = Boolean(result?.emailSent);
 
     showFormFeedback(
       notificationSent
@@ -361,32 +338,4 @@ function showFormFeedback(message, type) {
 function clearFormFeedback() {
   feedback.textContent = "";
   feedback.className = "form-feedback";
-}
-
-async function sendEmailJsNotification(payload) {
-  try {
-    const response = await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID,
-      {
-        to_email: CLINIC_NOTIFICATION_EMAIL,
-        clinic_email: CLINIC_NOTIFICATION_EMAIL,
-        patient_name: payload.patient_name,
-      patient_phone: payload.patient_phone,
-      patient_email: payload.patient_email,
-        service: payload.service,
-        appointment_date: payload.appointment_date,
-        appointment_time: payload.appointment_time,
-        notes: payload.notes || "Няма",
-      },
-      {
-        publicKey: EMAILJS_PUBLIC_KEY,
-      }
-    );
-
-    return response?.status === 200;
-  } catch (error) {
-    console.error("EmailJS notification error", error);
-    return false;
-  }
 }

@@ -1,8 +1,9 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || "Sonocare.bg@gmail.com";
-const FROM_EMAIL = process.env.FROM_EMAIL || "SonoCare <onboarding@resend.dev>";
+const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY;
 
 const REQUIRED_FIELDS = [
   "service",
@@ -139,50 +140,34 @@ async function insertAppointment(payload) {
 }
 
 async function sendNotificationEmail(payload) {
-  if (!RESEND_API_KEY) {
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
     return false;
   }
 
-  const html = `
-    <div style="font-family:Arial,sans-serif;color:#193257;line-height:1.6">
-      <h2 style="margin:0 0 12px;color:#193257;">Нова заявка за час</h2>
-      <p><strong>Пациент:</strong> ${escapeHtml(payload.patient_name)}</p>
-      <p><strong>Услуга:</strong> ${escapeHtml(payload.service)}</p>
-      <p><strong>Дата:</strong> ${escapeHtml(payload.appointment_date)}</p>
-      <p><strong>Час:</strong> ${escapeHtml(payload.appointment_time)}</p>
-      <p><strong>Телефон:</strong> ${escapeHtml(payload.patient_phone)}</p>
-      <p><strong>Имейл:</strong> ${escapeHtml(payload.patient_email)}</p>
-      <p><strong>Бележка:</strong> ${escapeHtml(payload.notes || "Няма")}</p>
-    </div>
-  `;
-
-  const text = [
-    "Нова заявка за час",
-    `Пациент: ${payload.patient_name}`,
-    `Услуга: ${payload.service}`,
-    `Дата: ${payload.appointment_date}`,
-    `Час: ${payload.appointment_time}`,
-    `Телефон: ${payload.patient_phone}`,
-    `Имейл: ${payload.patient_email}`,
-    `Бележка: ${payload.notes || "Няма"}`,
-  ].join("\n");
-
-  const resendResponse = await fetch("https://api.resend.com/emails", {
+  const emailJsResponse = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: [NOTIFICATION_EMAIL],
-      subject: `Запазен час: ${payload.patient_name} | ${payload.appointment_date} ${payload.appointment_time}`,
-      html,
-      text,
+      service_id: EMAILJS_SERVICE_ID,
+      template_id: EMAILJS_TEMPLATE_ID,
+      user_id: EMAILJS_PUBLIC_KEY,
+      template_params: {
+        to_email: NOTIFICATION_EMAIL,
+        clinic_email: NOTIFICATION_EMAIL,
+        patient_name: payload.patient_name,
+        patient_phone: payload.patient_phone,
+        patient_email: payload.patient_email,
+        service: payload.service,
+        appointment_date: payload.appointment_date,
+        appointment_time: payload.appointment_time,
+        notes: payload.notes || "Няма",
+      },
     }),
   });
 
-  return resendResponse.ok;
+  return emailJsResponse.ok;
 }
 
 function getSupabaseHeaders() {
@@ -198,13 +183,4 @@ async function safeJson(result) {
   } catch {
     return null;
   }
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
