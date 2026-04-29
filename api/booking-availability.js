@@ -16,7 +16,7 @@ module.exports = async (request, response) => {
   }
 
   try {
-    const [appointments, blockedDays, blockedHours] = await Promise.all([
+    const [appointments, blockedDays] = await Promise.all([
       supabaseSelect("appointments", {
         select: "appointment_time",
         appointment_date: `eq.${date}`,
@@ -25,23 +25,17 @@ module.exports = async (request, response) => {
         select: "id,date",
         date: `eq.${date}`,
       }),
-      supabaseSelect("blocked_hours", {
-        select: "id,date,time",
-        date: `eq.${date}`,
-      }),
     ]);
 
     return response.status(200).json({
       blockedDay: Array.isArray(blockedDays) && blockedDays.length > 0,
       bookedHours: (appointments || []).map((item) => item.appointment_time),
-      blockedHours: (blockedHours || []).map((item) => item.time),
     });
   } catch (error) {
     if (isMissingRelationError(error)) {
       return response.status(200).json({
         blockedDay: false,
         bookedHours: [],
-        blockedHours: [],
       });
     }
 

@@ -76,14 +76,13 @@ async function initializeDashboardPage() {
   activateSectionFromHash();
   window.addEventListener("hashchange", activateSectionFromHash);
   bindLogout();
-  bindBlockForms();
+  bindBlockDayForm();
   bindBlogForm();
 
   await Promise.all([
     loadOverview(),
     loadAppointments(),
     loadBlockedDays(),
-    loadBlockedHours(),
     loadBlogPosts(),
   ]);
 }
@@ -130,11 +129,15 @@ function bindLogout() {
   });
 }
 
-function bindBlockForms() {
+function bindBlockDayForm() {
   document.querySelector("#block-day-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const date = document.querySelector("#block-day-date").value;
+    const feedback = document.querySelector("#block-day-feedback");
     if (!date) return;
+
+    feedback.textContent = "";
+    feedback.className = "admin-feedback";
 
     try {
       await fetchJson("/api/admin-blocked-days", {
@@ -143,28 +146,12 @@ function bindBlockForms() {
       });
 
       event.currentTarget.reset();
+      feedback.textContent = "Денят е блокиран успешно.";
+      feedback.className = "admin-feedback is-success";
       await Promise.all([loadBlockedDays(), loadOverview()]);
     } catch (error) {
-      alert(error.message || "Не успяхме да блокираме деня.");
-    }
-  });
-
-  document.querySelector("#block-hour-form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const date = document.querySelector("#block-hour-date").value;
-    const time = document.querySelector("#block-hour-time").value;
-    if (!date || !time) return;
-
-    try {
-      await fetchJson("/api/admin-blocked-hours", {
-        method: "POST",
-        body: { date, time },
-      });
-
-      event.currentTarget.reset();
-      await loadBlockedHours();
-    } catch (error) {
-      alert(error.message || "Не успяхме да блокираме часа.");
+      feedback.textContent = error.message || "Не успяхме да блокираме деня.";
+      feedback.className = "admin-feedback is-error";
     }
   });
 }
@@ -172,12 +159,38 @@ function bindBlockForms() {
 function bindBlogForm() {
   const form = document.querySelector("#blog-form");
   const resetButton = document.querySelector("#blog-reset-button");
+  const imageFileInput = document.querySelector("#blog-image-file");
+  const clearImageButton = document.querySelector("#blog-image-clear");
+  const feedback = document.querySelector("#blog-form-feedback");
+
+  imageFileInput?.addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const dataUrl = await readImageAsDataUrl(file);
+      document.querySelector("#blog-image").value = dataUrl;
+      renderBlogImagePreview(dataUrl);
+      feedback.textContent = "Снимката е добавена успешно.";
+      feedback.className = "admin-feedback is-success";
+    } catch (error) {
+      feedback.textContent = "Не успяхме да обработим снимката. Опитайте с друга снимка.";
+      feedback.className = "admin-feedback is-error";
+    }
+  });
+
+  clearImageButton?.addEventListener("click", () => {
+    document.querySelector("#blog-image").value = "";
+    document.querySelector("#blog-image-file").value = "";
+    renderBlogImagePreview("");
+    feedback.textContent = "Снимката беше премахната.";
+    feedback.className = "admin-feedback";
+  });
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const postId = document.querySelector("#blog-post-id").value;
-    const feedback = document.querySelector("#blog-form-feedback");
     const submitButton = document.querySelector("#blog-submit-button");
 
     feedback.textContent = "";
@@ -320,46 +333,13 @@ async function loadBlockedDays() {
         await fetchJson(`/api/admin-blocked-days?id=${encodeURIComponent(button.dataset.blockedDayDelete)}`, {
           method: "DELETE",
         });
+        document.querySelector("#block-day-feedback").textContent = "";
+        document.querySelector("#block-day-feedback").className = "admin-feedback";
         await loadBlockedDays();
       } catch (error) {
-        alert(error.message || "Не успяхме да премахнем блокирания ден.");
-      }
-    });
-  });
-}
-
-async function loadBlockedHours() {
-  const result = await fetchJson("/api/admin-blocked-hours");
-  const container = document.querySelector("#blocked-hours-list");
-
-  renderSimpleList(
-    container,
-    result.blockedHours,
-    (item) => `
-      <article class="admin-list-item">
-        <div class="admin-list-item-header">
-          <div>
-            <strong>${formatDate(item.date)}</strong>
-            <p>${escapeHtml(item.time || "")}</p>
-          </div>
-          <div class="admin-list-actions">
-            <button class="admin-inline-button is-delete" type="button" data-blocked-hour-delete="${item.id}">Премахни</button>
-          </div>
-        </div>
-      </article>
-    `,
-    "Няма блокирани часове."
-  );
-
-  container.querySelectorAll("[data-blocked-hour-delete]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      try {
-        await fetchJson(`/api/admin-blocked-hours?id=${encodeURIComponent(button.dataset.blockedHourDelete)}`, {
-          method: "DELETE",
-        });
-        await loadBlockedHours();
-      } catch (error) {
-        alert(error.message || "Не успяхме да премахнем блокирания час.");
+        document.querySelector("#block-day-feedback").textContent =
+          error.message || "Не успяхме да премахнем блокирания ден.";
+        document.querySelector("#block-day-feedback").className = "admin-feedback is-error";
       }
     });
   });
@@ -426,21 +406,27 @@ function populateBlogForm(post) {
   document.querySelector("#blog-title").value = post?.title || "";
   document.querySelector("#blog-content").value = post?.content || "";
   document.querySelector("#blog-image").value = post?.image || "";
+  document.querySelector("#blog-image-file").value = "";
   document.querySelector("#blog-date").value = post?.created_at ? post.created_at.slice(0, 10) : getToday();
   document.querySelector("#blog-form-title").textContent = "Редакция на статия";
   document.querySelector("#blog-submit-button").textContent = "Запази промените";
   document.querySelector("#blog-reset-button").hidden = false;
+  renderBlogImagePreview(post?.image || "");
 }
 
 function resetBlogForm() {
   document.querySelector("#blog-form").reset();
   document.querySelector("#blog-post-id").value = "";
+  document.querySelector("#blog-image").value = "";
   document.querySelector("#blog-form-title").textContent = "Нова статия";
   document.querySelector("#blog-submit-button").textContent = "Публикувай";
   document.querySelector("#blog-reset-button").hidden = true;
   document.querySelector("#blog-form-feedback").textContent = "";
   document.querySelector("#blog-form-feedback").className = "admin-feedback";
+  document.querySelector("#block-day-feedback").textContent = "";
+  document.querySelector("#block-day-feedback").className = "admin-feedback";
   document.querySelector("#blog-date").value = getToday();
+  renderBlogImagePreview("");
 }
 
 function renderSimpleList(container, items, itemRenderer, emptyText) {
@@ -478,6 +464,51 @@ async function fetchJson(url, options = {}) {
 function normalizeDateForDatabase(value) {
   if (!value) return "";
   return new Date(`${value}T09:00:00`).toISOString();
+}
+
+function renderBlogImagePreview(image) {
+  const preview = document.querySelector("#blog-image-preview");
+  const clearButton = document.querySelector("#blog-image-clear");
+
+  if (!preview) return;
+
+  if (!image) {
+    preview.hidden = true;
+    preview.innerHTML = "";
+    if (clearButton) clearButton.hidden = true;
+    return;
+  }
+
+  preview.hidden = false;
+  if (clearButton) clearButton.hidden = false;
+  preview.innerHTML = `<img src="${escapeAttribute(image)}" alt="Преглед на снимката" />`;
+}
+
+function readImageAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onload = () => {
+        const maxWidth = 960;
+        const scale = Math.min(1, maxWidth / image.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.78));
+      };
+
+      image.onerror = reject;
+      image.src = String(reader.result || "");
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 function getToday() {

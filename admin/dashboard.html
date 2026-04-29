@@ -79,11 +79,11 @@
           <div class="admin-section-heading">
             <div>
               <h2>Часове и наличност</h2>
-              <p>Управление на записванията и блокиране на дни и часове.</p>
+              <p>Управление на записванията и блокиране на конкретни дни.</p>
             </div>
           </div>
 
-          <div class="admin-grid two-up">
+          <div class="admin-grid">
             <section class="admin-card">
               <div class="admin-card-header">
                 <h3>Блокирай ден</h3>
@@ -95,25 +95,8 @@
                 </label>
                 <button type="submit" class="admin-primary-button">Блокирай ден</button>
               </form>
+              <div id="block-day-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
               <div id="blocked-days-list" class="admin-list"></div>
-            </section>
-
-            <section class="admin-card">
-              <div class="admin-card-header">
-                <h3>Блокирай час</h3>
-              </div>
-              <form id="block-hour-form" class="admin-form compact-form">
-                <label>
-                  Дата
-                  <input id="block-hour-date" type="date" required />
-                </label>
-                <label>
-                  Час
-                  <input id="block-hour-time" type="time" step="1800" required />
-                </label>
-                <button type="submit" class="admin-primary-button">Блокирай час</button>
-              </form>
-              <div id="blocked-hours-list" class="admin-list"></div>
             </section>
           </div>
 
@@ -150,10 +133,15 @@
                   Дата
                   <input id="blog-date" type="date" required />
                 </label>
-                <label>
-                  Снимка (URL)
-                  <input id="blog-image" type="url" placeholder="https://..." />
-                </label>
+                <div class="admin-upload-field">
+                  <span class="admin-upload-label">Снимка</span>
+                  <input id="blog-image-file" type="file" accept="image/*" />
+                  <label class="admin-upload-trigger" for="blog-image-file">Избери снимка от телефон или галерия</label>
+                  <p class="admin-upload-hint">Качи основна снимка за статията. Ще я оптимизираме автоматично за по-бързо зареждане.</p>
+                  <button id="blog-image-clear" type="button" class="admin-inline-button is-delete" hidden>Премахни снимката</button>
+                </div>
+                <input id="blog-image" type="hidden" />
+                <div id="blog-image-preview" class="admin-image-preview" hidden></div>
                 <label>
                   Съдържание
                   <textarea id="blog-content" rows="10" required></textarea>

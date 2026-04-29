@@ -41,14 +41,6 @@ module.exports = async (request, response) => {
       });
     }
 
-    const blockedHour = await isBlockedHour(payload.appointment_date, payload.appointment_time);
-    if (blockedHour) {
-      return response.status(409).json({
-        error: "Този час е блокиран и не е наличен за записване.",
-        code: "HOUR_BLOCKED",
-      });
-    }
-
     const slotTaken = await checkIfSlotTaken(payload.appointment_date, payload.appointment_time);
 
     if (slotTaken) {
@@ -121,24 +113,6 @@ async function isBlockedDay(date) {
     });
 
     return Array.isArray(days) && days.length > 0;
-  } catch (error) {
-    if (isMissingRelationError(error)) {
-      return false;
-    }
-    throw error;
-  }
-}
-
-async function isBlockedHour(date, time) {
-  try {
-    const hours = await supabaseSelect("blocked_hours", {
-      select: "id",
-      date: `eq.${date}`,
-      time: `eq.${time}`,
-      limit: 1,
-    });
-
-    return Array.isArray(hours) && hours.length > 0;
   } catch (error) {
     if (isMissingRelationError(error)) {
       return false;

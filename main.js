@@ -15,7 +15,6 @@ const feedback = document.querySelector("#form-feedback");
 
 let selectedTime = "";
 let bookedHours = [];
-let blockedHours = [];
 let selectedDayBlocked = false;
 
 initializeBooking();
@@ -105,7 +104,6 @@ async function fetchAvailability(date) {
   return {
     blockedDay: Boolean(result?.blockedDay),
     bookedHours: Array.isArray(result?.bookedHours) ? result.bookedHours : [],
-    blockedHours: Array.isArray(result?.blockedHours) ? result.blockedHours : [],
   };
 }
 
@@ -113,7 +111,6 @@ async function renderHours(date) {
   const businessHours = getBusinessHours(date);
   hoursGrid.innerHTML = "";
   bookedHours = [];
-  blockedHours = [];
 
   if (!businessHours) {
     hoursNote.textContent = "Почивни дни";
@@ -128,7 +125,6 @@ async function renderHours(date) {
   try {
     const availability = await fetchAvailability(date);
     bookedHours = availability.bookedHours;
-    blockedHours = availability.blockedHours;
     selectedDayBlocked = availability.blockedDay;
 
     if (selectedDayBlocked) {
@@ -149,15 +145,14 @@ async function renderHours(date) {
 
     timeSlots.forEach((time) => {
       const isBooked = bookedHours.includes(time);
-      const isBlocked = blockedHours.includes(time);
       const button = document.createElement("button");
       button.type = "button";
       button.className = "hour-button";
       button.textContent = `${time}ч.`;
       button.dataset.time = time;
-      button.disabled = isBooked || isBlocked;
+      button.disabled = isBooked;
 
-      if (isBooked || isBlocked) {
+      if (isBooked) {
         button.classList.add("is-disabled");
         button.setAttribute("aria-disabled", "true");
       } else {
@@ -169,11 +164,7 @@ async function renderHours(date) {
 
     hoursGrid.appendChild(fragment);
 
-    if (blockedHours.length && bookedHours.length) {
-      setHoursMessage("Заетите и блокираните часове са деактивирани.");
-    } else if (blockedHours.length) {
-      setHoursMessage("Блокираните часове са деактивирани.");
-    } else if (bookedHours.length) {
+    if (bookedHours.length) {
       setHoursMessage("Заетите часове са деактивирани.");
     } else {
       setHoursMessage("Всички показани часове в момента са свободни.");
@@ -218,10 +209,6 @@ function validateForm() {
 
   if (selectedDayBlocked) {
     return "Тази дата е блокирана и не приема записвания.";
-  }
-
-  if (blockedHours.includes(selectedTime)) {
-    return "Този час е блокиран и не е наличен.";
   }
 
   if (isPastDate(appointmentDate)) {
@@ -277,7 +264,7 @@ async function handleBooking(event) {
     if (!bookingResponse.ok) {
       if (
         bookingResponse.status === 409 &&
-        ["SLOT_TAKEN", "DAY_BLOCKED", "HOUR_BLOCKED"].includes(result?.code)
+        ["SLOT_TAKEN", "DAY_BLOCKED"].includes(result?.code)
       ) {
         showFormFeedback(result?.error || "Този час вече не е наличен.", "error");
         await renderHours(payload.appointment_date);
