@@ -77,30 +77,97 @@ svg {
   padding: 16px 14px 104px;
 }
 
-.booking-topbar {
+.topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
+.logo-link img,
 .booking-logo img {
   width: 146px;
 }
 
-.back-home {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 16px;
+.menu-btn {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  padding: 10px;
   color: var(--blue);
-  border: 1px solid rgba(29, 63, 142, 0.1);
-  border-radius: 999px;
+  border: 1px solid rgba(29, 63, 142, 0.12);
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--shadow-soft);
-  font-size: 0.82rem;
-  font-weight: 800;
+}
+
+.menu-btn i {
+  width: 21px;
+  height: 2px;
+  border-radius: 9px;
+  background: currentColor;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.menu-btn.is-open i:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.menu-btn.is-open i:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-btn.is-open i:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.site-menu {
+  position: absolute;
+  top: 66px;
+  right: 14px;
+  left: 14px;
+  z-index: 60;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(29, 63, 142, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 28px 70px rgba(13, 43, 96, 0.16);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px) scale(0.98);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.site-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.site-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 14px;
+  color: var(--blue);
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.site-menu a::after {
+  color: var(--gold);
+  content: ">";
+}
+
+.site-menu a:hover,
+.site-menu a:focus-visible {
+  background: #f5f8ff;
 }
 
 .booking-hero {
@@ -481,3 +548,6 @@ svg {
     gap: 12px;
   }
 }
+
+
+
