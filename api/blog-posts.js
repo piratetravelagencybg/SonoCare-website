@@ -1,4 +1,4 @@
-const { isMissingRelationError, supabaseSelect } = require("./_supabase");
+const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
 
 module.exports = async (request, response) => {
   if (request.method !== "GET") {

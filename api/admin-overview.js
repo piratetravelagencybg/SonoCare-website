@@ -1,5 +1,5 @@
-const { requireAdmin } = require("./_admin-auth");
-const { isMissingRelationError, supabaseCount, supabaseSelect } = require("./_supabase");
+const { requireAdmin } = require("../lib/admin-auth");
+const { isMissingRelationError, supabaseCount, supabaseSelect } = require("../lib/supabase");
 
 module.exports = async (request, response) => {
   if (request.method !== "GET") {

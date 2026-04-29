@@ -1,5 +1,5 @@
-const { requireAdmin } = require("./_admin-auth");
-const { supabaseDelete, supabaseSelect, supabaseUpdate } = require("./_supabase");
+const { requireAdmin } = require("../lib/admin-auth");
+const { supabaseDelete, supabaseSelect, supabaseUpdate } = require("../lib/supabase");
 
 module.exports = async (request, response) => {
   const session = requireAdmin(request, response);

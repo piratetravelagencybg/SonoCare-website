@@ -16,7 +16,7 @@
 
 async function initializeLoginPage() {
   try {
-    const session = await fetchJson("/api/admin-session");
+    const session = await fetchJson("/api/admin-auth");
     if (session.authenticated) {
       window.location.replace("/admin/dashboard.html");
       return;
@@ -35,7 +35,7 @@ async function initializeLoginPage() {
     button.textContent = "Влизане...";
 
     try {
-      const result = await fetchJson("/api/admin-login", {
+      const result = await fetchJson("/api/admin-auth", {
         method: "POST",
         body: {
           email: document.querySelector("#admin-email").value.trim(),
@@ -58,7 +58,7 @@ async function initializeDashboardPage() {
   let session;
 
   try {
-    session = await fetchJson("/api/admin-session");
+    session = await fetchJson("/api/admin-auth");
   } catch {
     window.location.replace("/admin/index.html");
     return;
@@ -103,7 +103,7 @@ function bindLogout() {
   const button = document.querySelector("#admin-logout-button");
 
   button?.addEventListener("click", async () => {
-    await fetchJson("/api/admin-logout", { method: "POST" }).catch(() => null);
+    await fetchJson("/api/admin-auth", { method: "DELETE" }).catch(() => null);
     window.location.replace("/admin/index.html");
   });
 }

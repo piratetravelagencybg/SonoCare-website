@@ -2,7 +2,7 @@ const {
   isMissingRelationError,
   supabaseInsert,
   supabaseSelect,
-} = require("./_supabase");
+} = require("../lib/supabase");
 
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || "Sonocare.bg@gmail.com";
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;

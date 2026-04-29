@@ -1,5 +1,5 @@
-const { requireAdmin } = require("./_admin-auth");
-const { isMissingRelationError, supabaseInsert, supabaseSelect } = require("./_supabase");
+const { requireAdmin } = require("../lib/admin-auth");
+const { isMissingRelationError, supabaseInsert, supabaseSelect } = require("../lib/supabase");
 
 module.exports = async (request, response) => {
   const session = requireAdmin(request, response);
