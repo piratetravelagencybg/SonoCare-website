@@ -289,6 +289,14 @@ svg {
   width: 180px;
 }
 
+.hero-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
 .btn {
   display: inline-flex;
   min-height: 42px;
