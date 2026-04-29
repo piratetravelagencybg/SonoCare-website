@@ -73,6 +73,8 @@ async function initializeDashboardPage() {
   document.querySelector("#blog-date").value = getToday();
 
   bindDashboardNavigation();
+  activateSectionFromHash();
+  window.addEventListener("hashchange", activateSectionFromHash);
   bindLogout();
   bindBlockForms();
   bindBlogForm();
@@ -88,15 +90,35 @@ async function initializeDashboardPage() {
 
 function bindDashboardNavigation() {
   const navButtons = Array.from(document.querySelectorAll(".admin-nav-link"));
-  const sections = Array.from(document.querySelectorAll(".admin-section"));
 
   navButtons.forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
       const targetId = button.dataset.target;
-      navButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-      sections.forEach((section) => section.classList.toggle("is-active", section.id === targetId));
+      setActiveSection(targetId);
+      window.location.hash = targetId;
     });
   });
+}
+
+function activateSectionFromHash() {
+  const targetId = window.location.hash.replace("#", "") || "overview-section";
+  setActiveSection(targetId);
+}
+
+function setActiveSection(targetId) {
+  const navButtons = Array.from(document.querySelectorAll(".admin-nav-link"));
+  const sections = Array.from(document.querySelectorAll(".admin-section"));
+  const hasTarget = sections.some((section) => section.id === targetId);
+  const safeTargetId = hasTarget ? targetId : "overview-section";
+
+  navButtons.forEach((item) =>
+    item.classList.toggle("is-active", item.dataset.target === safeTargetId)
+  );
+
+  sections.forEach((section) =>
+    section.classList.toggle("is-active", section.id === safeTargetId)
+  );
 }
 
 function bindLogout() {
