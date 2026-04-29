@@ -320,6 +320,9 @@ svg {
 
 .hours-message {
   margin-top: 16px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  font-weight: 800;
 }
 
 .hours-message.is-error {

@@ -132,8 +132,8 @@ async function renderHours(date) {
   hoursGrid.innerHTML = "";
 
   if (!businessHours) {
-    hoursNote.textContent = "Неделя";
-    setHoursMessage("В неделя кабинетът не работи.");
+    hoursNote.textContent = "Почивни дни";
+    setHoursMessage("Събота и неделя кабинетът не работи.");
     return;
   }
 
@@ -224,7 +224,7 @@ function validateForm() {
   }
 
   if (!getBusinessHours(appointmentDate)) {
-    return "Кабинетът не работи в неделя. Изберете друга дата.";
+    return "Събота и неделя кабинетът не работи. Изберете дата от понеделник до петък.";
   }
 
   return "";
