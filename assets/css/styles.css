@@ -653,6 +653,18 @@ svg {
   margin: 28px 0 10px;
 }
 
+.service-note {
+  margin-top: 24px;
+  padding: 14px 16px;
+  color: var(--muted);
+  border: 1px solid rgba(11, 50, 107, 0.08);
+  border-radius: 18px;
+  background: rgba(245, 248, 255, 0.88);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
 .service-cta .btn {
   width: 100%;
 }
