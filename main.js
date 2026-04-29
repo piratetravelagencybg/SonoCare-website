@@ -312,10 +312,12 @@ async function handleBooking(event) {
     selectedTime = "";
     selectedTimeInput.value = "";
 
-    let notificationSent = Boolean(result?.emailSent);
+    let notificationSent = false;
 
-    if (!notificationSent && emailJsConfigured) {
+    if (emailJsConfigured) {
       notificationSent = await sendEmailJsNotification(payload);
+    } else if (result?.emailSent) {
+      notificationSent = true;
     }
 
     showFormFeedback(
