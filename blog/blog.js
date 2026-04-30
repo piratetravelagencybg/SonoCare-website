@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const isListPage =
     window.location.pathname === "/blog" ||
     window.location.pathname.endsWith("/blog/") ||
@@ -18,7 +18,7 @@ async function loadBlogList() {
   const grid = document.querySelector("#blog-posts-grid");
   const feedback = document.querySelector("#blog-feedback");
 
-  feedback.textContent = "Зареждане на статии...";
+  feedback.textContent = "Зареждане на статиите...";
 
   try {
     const result = await fetchJson("/api/blog-posts");
@@ -40,7 +40,7 @@ async function loadBlogList() {
               <span class="blog-card-date">${formatDate(post.created_at)}</span>
               <h2>${escapeHtml(post.title || "")}</h2>
               <p>${escapeHtml(trimText(post.content || "", 170))}</p>
-              <a class="blog-card-link" href="post.html?id=${encodeURIComponent(post.id)}">Прочети статията</a>
+              <a class="blog-card-link" href="/blog/post.html?id=${encodeURIComponent(post.id)}">Прочети статията</a>
             </div>
           </article>
         `
@@ -81,7 +81,7 @@ async function loadSinglePost() {
       <span class="eyebrow">SonoCare Blog</span>
       <h1>${escapeHtml(post.title || "")}</h1>
       <p class="single-post-meta">${formatDate(post.created_at)}</p>
-      <div class="single-post-content">${escapeHtml(post.content || "")}</div>
+      <div class="single-post-content">${formatPostContent(post.content || "")}</div>
     `;
   } catch (error) {
     console.error(error);
@@ -90,7 +90,7 @@ async function loadSinglePost() {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url);
+  const response = await fetch(url, { cache: "no-store" });
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -98,6 +98,15 @@ async function fetchJson(url) {
   }
 
   return data;
+}
+
+function formatPostContent(value) {
+  return String(value || "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br />")}</p>`)
+    .join("");
 }
 
 function formatDate(value) {
@@ -110,8 +119,8 @@ function formatDate(value) {
 }
 
 function trimText(value, limit) {
-  const text = String(value || "");
-  return text.length > limit ? `${text.slice(0, limit).trim()}…` : text;
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
 }
 
 function escapeHtml(value) {
@@ -119,7 +128,7 @@ function escapeHtml(value) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
 

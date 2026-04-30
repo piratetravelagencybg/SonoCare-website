@@ -1,4 +1,4 @@
-const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
+﻿const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
 
 module.exports = async (request, response) => {
   if (request.method !== "GET") {
@@ -6,7 +6,7 @@ module.exports = async (request, response) => {
     return response.status(405).json({ error: "Method not allowed." });
   }
 
-  const id = String(request.query?.id || "").trim();
+  const id = getRequestParam(request, "id");
 
   if (!id) {
     return response.status(400).json({
@@ -37,3 +37,16 @@ module.exports = async (request, response) => {
     });
   }
 };
+
+function getRequestParam(request, key) {
+  const directValue = String(request.query?.[key] || "").trim();
+  if (directValue) return directValue;
+
+  try {
+    const host = request.headers?.host || "localhost";
+    const value = new URL(request.url || "", `https://${host}`).searchParams.get(key);
+    return String(value || "").trim();
+  } catch {
+    return "";
+  }
+}

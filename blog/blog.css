@@ -172,6 +172,10 @@ img {
   white-space: pre-wrap;
 }
 
+.single-post-content p {
+  margin: 0 0 16px;
+}
+
 .blog-feedback {
   margin-top: 18px;
 }
