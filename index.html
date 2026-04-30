@@ -14,11 +14,33 @@
     <link rel="stylesheet" href="assets/css/styles.css?v=37" />
   </head>
   <body>
-    <main class="phone-page">
+    <main class="phone-page home-page">
       <header class="topbar" aria-label="Основна навигация">
         <a class="logo-link" href="#top" aria-label="SonoCare начало">
           <img src="logo.png" alt="SonoCare" />
         </a>
+        <nav class="desktop-nav" aria-label="Навигация за компютър">
+          <a href="#top">Начало</a>
+          <a href="doctor.html">За нас</a>
+          <a href="#services">Услуги</a>
+          <a href="booking.html">Прегледи и цени</a>
+          <a href="blog/">Блог</a>
+          <a href="#contact">Контакти</a>
+        </nav>
+        <div class="desktop-actions">
+          <a class="desktop-phone" href="tel:+359879262675">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5.5 4.5 8.2 3a1.8 1.8 0 0 1 2.4.7l1.2 2.2a1.8 1.8 0 0 1-.4 2.2L10 9.4a12.2 12.2 0 0 0 4.6 4.6l1.3-1.4a1.8 1.8 0 0 1 2.2-.4l2.2 1.2a1.8 1.8 0 0 1 .7 2.4l-1.5 2.7c-.4.8-1.3 1.2-2.2 1.1C10.2 18.6 5.4 13.8 4.4 6.7c-.1-.9.3-1.8 1.1-2.2Z" />
+            </svg>
+            <span>0879 262 675</span>
+          </a>
+          <a class="btn primary desktop-book-btn" href="booking.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+            </svg>
+            Запази час
+          </a>
+        </div>
         <button class="menu-btn" type="button" aria-label="Меню">
           <i></i>
           <i></i>
@@ -57,6 +79,71 @@
             </a>
           </div>
           <p class="hero-note">Преглед само с запазен час</p>
+        </div>
+        <article class="hero-trust-card" aria-label="Доверие и професионализъм">
+          <div class="hero-trust-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 19a4 4 0 0 0-8 0" />
+              <circle cx="12" cy="11" r="3" />
+              <path d="M6 18a3.5 3.5 0 0 0-2.5-3.35" />
+              <path d="M18 18a3.5 3.5 0 0 1 2.5-3.35" />
+              <circle cx="5" cy="10" r="2.25" />
+              <circle cx="19" cy="10" r="2.25" />
+            </svg>
+          </div>
+          <div>
+            <strong>Доверие и професионализъм</strong>
+            <span>Прецизни прегледи, индивидуално отношение и ясна насока за всеки пациент.</span>
+          </div>
+        </article>
+        <div class="hero-feature-strip" aria-label="Основни предимства">
+          <article class="hero-feature-item">
+            <div class="hero-feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="12" rx="2.2" />
+                <path d="M8 19h8" />
+              </svg>
+            </div>
+            <div>
+              <strong>Модерна апаратура</strong>
+              <span>Работим с висок клас ехографска техника за надеждна визуализация.</span>
+            </div>
+          </article>
+          <article class="hero-feature-item">
+            <div class="hero-feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" />
+                <path d="M12 8v4l3 2" />
+              </svg>
+            </div>
+            <div>
+              <strong>Точна диагностика</strong>
+              <span>Прецизни резултати и ясно обяснение на всяка находка.</span>
+            </div>
+          </article>
+          <article class="hero-feature-item">
+            <div class="hero-feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 20c-4.2 0-7-2.1-7-4.6S7.8 11 12 11s7 2.1 7 4.4S16.2 20 12 20Z" />
+                <circle cx="12" cy="7" r="3.2" />
+              </svg>
+            </div>
+            <div>
+              <strong>Лично отношение</strong>
+              <span>Отделяме време и внимание на всеки пациент и неговия случай.</span>
+            </div>
+          </article>
+          <article class="hero-feature-item">
+            <div class="hero-feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+              </svg>
+            </div>
+            <div>
+              <strong>Сигурно и удобно</strong>
+              <span>Запазване на час без излишно чакане и преглед само с предварителна заявка.</span>
+            </div>
+          </article>
         </div>
       </section>
 
