@@ -549,5 +549,143 @@ svg {
   }
 }
 
+@media (min-width: 1024px) {
+  body {
+    padding: 28px 24px 48px;
+  }
+
+  .booking-page {
+    width: min(1180px, 100%);
+    padding: 24px 28px 42px;
+    border-radius: 40px;
+    background: rgba(255, 255, 255, 0.44);
+    box-shadow: 0 34px 90px rgba(13, 43, 96, 0.12);
+  }
+
+  .topbar {
+    min-height: 62px;
+  }
+
+  .logo-link img,
+  .booking-logo img {
+    width: 176px;
+  }
+
+  .site-menu {
+    top: 74px;
+    right: 0;
+    left: auto;
+    width: 300px;
+  }
+
+  .booking-hero {
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    align-items: stretch;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .booking-hero-copy,
+  .hero-badge-card,
+  .booking-card {
+    border-radius: 30px;
+  }
+
+  .booking-hero-copy {
+    padding: 32px 30px;
+  }
+
+  .booking-hero-copy h1 {
+    font-size: 3.6rem;
+  }
+
+  .booking-hero-copy p {
+    max-width: 720px;
+    font-size: 1rem;
+  }
+
+  .hero-badge-card {
+    align-content: center;
+    padding: 24px;
+  }
+
+  .hero-badge-card strong {
+    font-size: 1.05rem;
+  }
+
+  .hero-badge-card span {
+    font-size: 0.9rem;
+  }
+
+  .booking-shell {
+    margin-top: 20px;
+  }
+
+  .booking-card {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+    gap: 22px 24px;
+    padding: 24px;
+    align-items: start;
+  }
+
+  .booking-card > .booking-field:first-of-type,
+  .booking-card > .booking-field:nth-of-type(2) {
+    margin-bottom: 0;
+  }
+
+  .hours-panel {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 0;
+    padding: 20px 18px 18px;
+  }
+
+  #booking-form {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+    margin-top: 0;
+  }
+
+  #booking-form .booking-field:first-child,
+  #booking-form .booking-field:nth-child(2),
+  #booking-form .booking-field:nth-child(3),
+  #booking-form .booking-field:nth-child(4) {
+    margin-bottom: 0;
+  }
+
+  #booking-form .booking-field:last-of-type {
+    grid-column: 1 / -1;
+  }
+
+  .form-feedback,
+  .submit-button {
+    grid-column: 1 / -1;
+  }
+
+  .hours-panel-header h2 {
+    font-size: 1.18rem;
+  }
+
+  .hours-message {
+    font-size: 0.94rem;
+  }
+
+  .hours-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .hour-button {
+    min-height: 50px;
+    font-size: 0.9rem;
+  }
+
+  .sticky-cta {
+    display: none;
+  }
+}
+
 
 

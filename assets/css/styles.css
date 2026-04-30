@@ -1357,3 +1357,316 @@ svg {
     border-radius: 20px;
   }
 }
+
+@media (min-width: 1024px) {
+  body {
+    padding: 28px 24px 48px;
+    background:
+      radial-gradient(circle at top right, rgba(225, 238, 255, 0.78), transparent 24%),
+      linear-gradient(180deg, #fbfdff 0%, #f3f7fc 100%);
+  }
+
+  .phone-page {
+    width: min(1240px, 100%);
+    padding: 22px 40px 72px;
+    border-radius: 40px;
+    box-shadow: 0 34px 100px rgba(11, 50, 107, 0.12);
+    overflow: visible;
+  }
+
+  .topbar {
+    min-height: 64px;
+    margin-bottom: 14px;
+  }
+
+  .logo-link img {
+    width: 182px;
+  }
+
+  .menu-btn {
+    width: 46px;
+    height: 46px;
+  }
+
+  .site-menu {
+    top: 72px;
+    right: 0;
+    left: auto;
+    width: 310px;
+  }
+
+  .hero {
+    min-height: 760px;
+    margin: 0;
+    padding: 44px 44px 110px;
+    border-radius: 38px;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    height: 180px;
+  }
+
+  .hero-bg-shape {
+    top: 24px;
+    right: -92px;
+    width: 640px;
+    height: 640px;
+    opacity: 0.48;
+  }
+
+  .hero-image {
+    top: 18px;
+    right: -56px;
+    width: 68%;
+    max-width: 790px;
+  }
+
+  .hero-content {
+    max-width: 470px;
+    padding-top: 40px;
+  }
+
+  .hero h1 {
+    max-width: 450px;
+    margin-bottom: 22px;
+    font-size: 5rem;
+  }
+
+  .doctor-name {
+    font-size: 1.08rem;
+  }
+
+  .hero-subtitle {
+    max-width: 320px;
+    margin-bottom: 28px;
+    font-size: 1rem;
+  }
+
+  .hero-list {
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .hero-list li {
+    font-size: 0.96rem;
+  }
+
+  .hero-list li::before {
+    flex-basis: 22px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.78rem;
+  }
+
+  .hero-actions {
+    width: auto;
+    grid-template-columns: repeat(2, max-content);
+    align-items: center;
+  }
+
+  .btn {
+    min-height: 48px;
+    padding: 0 22px;
+    font-size: 0.9rem;
+  }
+
+  .hero-note {
+    margin-top: 16px;
+    font-size: 0.88rem;
+  }
+
+  .section-title {
+    gap: 14px;
+    margin: 42px 0 22px;
+  }
+
+  .section-title::before {
+    width: 30px;
+  }
+
+  .section-title h2 {
+    font-size: 2.35rem;
+  }
+
+  .section-title a {
+    font-size: 0.9rem;
+  }
+
+  .service-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .service-card {
+    min-height: 100%;
+  }
+
+  .service-card img {
+    height: 220px;
+  }
+
+  .service-card h3 {
+    font-size: 2rem;
+  }
+
+  .service-card p {
+    font-size: 0.92rem;
+  }
+
+  .home-blog-track {
+    grid-auto-flow: unset;
+    grid-auto-columns: unset;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .home-blog-card img,
+  .home-blog-card-placeholder {
+    height: 200px;
+  }
+
+  .doctor-card {
+    min-height: 560px;
+    padding: 38px 34px 34px;
+  }
+
+  .doctor-card-content {
+    width: 52%;
+    max-width: 520px;
+    min-height: 0;
+    padding-top: 10px;
+  }
+
+  .doctor-card h2,
+  .booking-card h2 {
+    font-size: 3.1rem;
+  }
+
+  .doctor-card span {
+    font-size: 1rem;
+  }
+
+  .doctor-portrait {
+    top: -6px;
+    right: -18px;
+    bottom: -18px;
+    width: 48%;
+  }
+
+  .doctor-more {
+    min-height: 48px;
+    width: min(220px, 100%);
+    font-size: 0.9rem;
+  }
+
+  .booking-card,
+  .contact-card {
+    padding: 24px;
+  }
+
+  .schedule-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .contact-card {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .contact-map-link {
+    min-height: 48px;
+    margin-top: 0;
+  }
+
+  .phone-page.service-page,
+  .phone-page.doctor-page {
+    width: min(1180px, 100%);
+  }
+
+  .service-page .topbar {
+    min-height: 64px;
+    padding: 0 8px;
+  }
+
+  .service-detail-hero {
+    margin: 18px 0 32px;
+    border-radius: 36px;
+  }
+
+  .service-detail-hero img {
+    height: 460px;
+  }
+
+  .service-detail {
+    max-width: 1000px;
+  }
+
+  .service-detail h1 {
+    font-size: 4rem;
+    max-width: 760px;
+  }
+
+  .service-lede,
+  .info-panel {
+    padding: 28px;
+  }
+
+  .quick-facts {
+    max-width: 680px;
+  }
+
+  .process-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .service-cta {
+    grid-template-columns: repeat(2, minmax(220px, 320px));
+  }
+
+  .doctor-page-hero {
+    grid-template-columns: 420px minmax(0, 1fr);
+    align-items: stretch;
+    margin-bottom: 30px;
+  }
+
+  .doctor-page-photo,
+  .doctor-page-photo img {
+    min-height: 540px;
+  }
+
+  .doctor-page-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 0;
+    padding: 38px 38px 38px 8px;
+  }
+
+  .doctor-page-intro h1,
+  .doctor-focus-card h2,
+  .doctor-split-panel h2 {
+    font-size: 3.5rem;
+  }
+
+  .doctor-page-intro p,
+  .doctor-focus-card p,
+  .doctor-split-panel p {
+    font-size: 1rem;
+  }
+
+  .doctor-split-panel {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
+  }
+
+  .faq-item summary {
+    min-height: 72px;
+    padding: 18px 22px;
+    font-size: 1rem;
+  }
+
+  .mobile-cta {
+    display: none;
+  }
+}
