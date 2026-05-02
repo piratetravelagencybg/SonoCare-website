@@ -134,6 +134,7 @@ function bindLogout() {
 function bindBlockDayForm() {
   document.querySelector("#block-day-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const form = event.currentTarget;
     const date = document.querySelector("#block-day-date").value;
     const feedback = document.querySelector("#block-day-feedback");
 
@@ -147,7 +148,7 @@ function bindBlockDayForm() {
         body: { date },
       });
 
-      event.currentTarget.reset();
+      form?.reset();
       document.querySelector("#block-day-date").min = getToday();
       setAdminFeedback(feedback, "Денят е блокиран успешно.", "success");
       await Promise.allSettled([loadBlockedDays(), loadOverview()]);
@@ -160,6 +161,7 @@ function bindBlockDayForm() {
 function bindBlockHourForm() {
   document.querySelector("#block-hours-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const form = event.currentTarget;
     const date = document.querySelector("#block-hours-date").value;
     const feedback = document.querySelector("#block-hours-feedback");
     const times = Array.from(
@@ -179,7 +181,7 @@ function bindBlockHourForm() {
         body: { date, times },
       });
 
-      event.currentTarget.reset();
+      form?.reset();
       document.querySelector("#block-hours-date").min = getToday();
       const count = Array.isArray(result?.blockedHours) ? result.blockedHours.length : times.length;
       setAdminFeedback(
