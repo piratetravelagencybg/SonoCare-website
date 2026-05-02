@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="bg">
   <head>
     <meta charset="utf-8" />
@@ -7,6 +7,7 @@
       name="description"
       content="Онлайн записване на час в SonoCare – бърза и удобна система за избор на услуга, дата и свободен час."
     />
+    <link rel="canonical" href="https://www.sonocare.bg/booking.html" />
     <title>SonoCare | Запази час</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,11 +19,11 @@
   </head>
   <body>
     <main class="booking-page">
-      <header class="topbar booking-topbar" aria-label="������� ���������">
+      <header class="topbar booking-topbar" aria-label="Основна навигация">
         <a class="logo-link booking-logo" href="index.html" aria-label="SonoCare начало">
           <img src="logo.png" alt="SonoCare" />
         </a>
-        <button class="menu-btn" type="button" aria-label="����"><i></i><i></i><i></i></button>
+        <button class="menu-btn" type="button" aria-label="Меню"><i></i><i></i><i></i></button>
       </header>
 
       <section class="booking-hero">
@@ -105,7 +106,7 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M5.5 4.5 8.2 3a1.8 1.8 0 0 1 2.4.7l1.2 2.2a1.8 1.8 0 0 1-.4 2.2L10 9.4a12.2 12.2 0 0 0 4.6 4.6l1.3-1.4a1.8 1.8 0 0 1 2.2-.4l2.2 1.2a1.8 1.8 0 0 1 .7 2.4l-1.5 2.7c-.4.8-1.3 1.2-2.2 1.1C10.2 18.6 5.4 13.8 4.4 6.7c-.1-.9.3-1.8 1.1-2.2Z"></path>
                 </svg>
-                <input id="patient-phone" name="patient-phone" type="tel" autocomplete="tel" required />
+                <input id="patient-phone" name="patient-phone" type="tel" autocomplete="tel" inputmode="tel" required />
               </div>
             </div>
 
@@ -127,7 +128,7 @@
                   <path d="M8 7h8M8 12h8M8 17h5"></path>
                   <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path>
                 </svg>
-                <textarea id="notes" name="notes" rows="3" placeholder="Допълнителна информация"></textarea>
+                <textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="Допълнителна информация"></textarea>
               </div>
             </div>
 
@@ -155,6 +156,8 @@
     <script type="module" src="main.js"></script>
   </body>
 </html>
+
+
 
 
 

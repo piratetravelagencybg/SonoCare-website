@@ -7,6 +7,8 @@ const {
 } = require("../lib/admin-auth");
 
 module.exports = async (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
+
   if (request.method === "GET") {
     if (!isAdminConfigured()) {
       return response.status(500).json({

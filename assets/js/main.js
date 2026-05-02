@@ -1,38 +1,11 @@
-const revealItems = document.querySelectorAll(".section-reveal");
-
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.12 }
-);
-
-revealItems.forEach((item) => revealObserver.observe(item));
-
-const bookingForm = document.querySelector(".booking-form");
-const formNote = document.querySelector(".form-note");
-
-if (bookingForm && formNote) {
-  bookingForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    formNote.textContent = "Благодарим Ви. Ще се свържем с Вас за потвърждение.";
-    bookingForm.reset();
-  });
-}
+const topbar = document.querySelector(".topbar");
+const menuButton = document.querySelector(".menu-btn");
 
 document.querySelectorAll("img").forEach((image) => {
   image.addEventListener("error", () => {
     image.style.opacity = "0";
   });
 });
-
-const topbar = document.querySelector(".topbar");
-const menuButton = document.querySelector(".menu-btn");
 
 if (topbar && menuButton) {
   const isServicePage = window.location.pathname.includes("/services/");
@@ -43,7 +16,7 @@ if (topbar && menuButton) {
   menu.innerHTML = `
     <a href="${basePath}index.html#top">Начало</a>
     <a href="${basePath}index.html#services">Услуги</a>
-    <a href="${basePath}doctor.html">Д-р Доленска</a>
+    <a href="${basePath}doctor.html">За нас</a>
     <a href="${basePath}booking.html">Запази час</a>
     <a href="${basePath}blog/">Блог</a>
     <a href="${basePath}index.html#contact">Контакти</a>
@@ -98,7 +71,7 @@ async function loadHomeBlogPosts() {
   homeBlogTrack.innerHTML = '<div class="home-blog-status">Зареждане на последните статии...</div>';
 
   try {
-    const response = await fetch("/api/blog-posts", { cache: "no-store" });
+    const response = await fetch("/api/blog-posts");
     const result = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -115,16 +88,16 @@ async function loadHomeBlogPosts() {
     homeBlogTrack.innerHTML = posts
       .map(
         (post) => `
-          <a class="home-blog-card" href="/blog/post.html?id=${encodeURIComponent(post.id)}">
+          <a class="home-blog-card" href="/blog/post.html?id=${encodeURIComponent(post.id)}&slug=${encodeURIComponent(post.slug || "")}">
             ${
               post.image
-                ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title || "Статия")}" />`
+                ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title || "Статия")}" loading="lazy" decoding="async" />`
                 : '<div class="home-blog-card-placeholder">SonoCare Blog</div>'
             }
             <div class="home-blog-card-body">
               <span>${formatBlogDate(post.created_at)}</span>
               <h3>${escapeHtml(post.title || "")}</h3>
-              <p>${escapeHtml(trimBlogText(post.content || "", 110))}</p>
+              <p>${escapeHtml(post.excerpt || "")}</p>
             </div>
           </a>
         `
@@ -144,11 +117,6 @@ function formatBlogDate(value) {
     month: "long",
     year: "numeric",
   }).format(new Date(value));
-}
-
-function trimBlogText(value, limit) {
-  const text = String(value || "").replace(/\s+/g, " ").trim();
-  return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
 }
 
 function escapeHtml(value) {

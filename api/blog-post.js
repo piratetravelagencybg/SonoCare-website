@@ -1,10 +1,13 @@
-﻿const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
+const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
+const { buildExcerpt, slugify } = require("../lib/blog");
 
 module.exports = async (request, response) => {
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     return response.status(405).json({ error: "Method not allowed." });
   }
+
+  response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
 
   const id = getRequestParam(request, "id");
 
@@ -23,7 +26,13 @@ module.exports = async (request, response) => {
     });
 
     return response.status(200).json({
-      post: posts?.[0] || null,
+      post: posts?.[0]
+        ? {
+            ...posts[0],
+            slug: slugify(posts[0].title || ""),
+            excerpt: buildExcerpt(posts[0].content || "", 180),
+          }
+        : null,
     });
   } catch (error) {
     if (isMissingRelationError(error)) {

@@ -15,7 +15,12 @@ const feedback = document.querySelector("#form-feedback");
 
 let selectedTime = "";
 let bookedHours = [];
+let blockedHours = [];
 let selectedDayBlocked = false;
+let availabilityRequestController = null;
+let latestAvailabilityRequest = 0;
+
+const availabilityCache = new Map();
 
 initializeBooking();
 
@@ -93,24 +98,43 @@ async function handleDateChange() {
   await renderHours(selectedDate);
 }
 
-async function fetchAvailability(date) {
-  const response = await fetch(`/api/booking-availability?date=${encodeURIComponent(date)}`);
+async function fetchAvailability(date, signal) {
+  if (availabilityCache.has(date)) {
+    return availabilityCache.get(date);
+  }
+
+  const response = await fetch(`/api/booking-availability?date=${encodeURIComponent(date)}`, {
+    cache: "no-store",
+    signal,
+  });
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     throw new Error(result?.error || "Availability request failed");
   }
 
-  return {
+  const data = {
     blockedDay: Boolean(result?.blockedDay),
+    blockedHours: Array.isArray(result?.blockedHours) ? result.blockedHours : [],
     bookedHours: Array.isArray(result?.bookedHours) ? result.bookedHours : [],
   };
+
+  availabilityCache.set(date, data);
+  return data;
 }
 
 async function renderHours(date) {
   const businessHours = getBusinessHours(date);
+  const requestId = ++latestAvailabilityRequest;
+
+  if (availabilityRequestController) {
+    availabilityRequestController.abort();
+  }
+
+  availabilityRequestController = new AbortController();
   hoursGrid.innerHTML = "";
   bookedHours = [];
+  blockedHours = [];
 
   if (!businessHours) {
     hoursNote.textContent = "Почивни дни";
@@ -123,8 +147,14 @@ async function renderHours(date) {
   setHoursMessage("Зареждане на свободните часове...");
 
   try {
-    const availability = await fetchAvailability(date);
+    const availability = await fetchAvailability(date, availabilityRequestController.signal);
+
+    if (requestId !== latestAvailabilityRequest) {
+      return;
+    }
+
     bookedHours = availability.bookedHours;
+    blockedHours = availability.blockedHours;
     selectedDayBlocked = availability.blockedDay;
 
     if (selectedDayBlocked) {
@@ -144,15 +174,16 @@ async function renderHours(date) {
     const fragment = document.createDocumentFragment();
 
     timeSlots.forEach((time) => {
-      const isBooked = bookedHours.includes(time);
+      const isUnavailable = bookedHours.includes(time) || blockedHours.includes(time);
       const button = document.createElement("button");
       button.type = "button";
       button.className = "hour-button";
       button.textContent = `${time}ч.`;
       button.dataset.time = time;
-      button.disabled = isBooked;
+      button.disabled = isUnavailable;
+      button.setAttribute("aria-pressed", "false");
 
-      if (isBooked) {
+      if (isUnavailable) {
         button.classList.add("is-disabled");
         button.setAttribute("aria-disabled", "true");
       } else {
@@ -164,16 +195,22 @@ async function renderHours(date) {
 
     hoursGrid.appendChild(fragment);
 
-    if (bookedHours.length) {
-      setHoursMessage("Заетите часове са деактивирани.");
+    if (bookedHours.length || blockedHours.length) {
+      setHoursMessage("Заетите и блокираните часове са деактивирани.");
     } else {
       setHoursMessage("Всички показани часове в момента са свободни.");
     }
   } catch (error) {
+    if (error.name === "AbortError") {
+      return;
+    }
+
     console.error(error);
     setHoursMessage("Възникна проблем при зареждането на часовете. Опитайте отново.", true);
   } finally {
-    setHoursLoading(false);
+    if (requestId === latestAvailabilityRequest) {
+      setHoursLoading(false);
+    }
   }
 }
 
@@ -182,7 +219,9 @@ function selectHour(time) {
   selectedTimeInput.value = time;
 
   document.querySelectorAll(".hour-button").forEach((button) => {
-    button.classList.toggle("is-selected", button.dataset.time === time);
+    const isSelected = button.dataset.time === time;
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
   });
 
   setHoursMessage(`Избраният час е ${time}ч.`);
@@ -190,6 +229,10 @@ function selectHour(time) {
 
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePhone(phone) {
+  return /^[+\d][\d\s()-]{7,}$/.test(phone);
 }
 
 function validateForm() {
@@ -211,8 +254,16 @@ function validateForm() {
     return "Тази дата е блокирана и не приема записвания.";
   }
 
+  if (blockedHours.includes(selectedTime)) {
+    return "Този час не е наличен за записване.";
+  }
+
   if (isPastDate(appointmentDate)) {
     return "Не може да запишете час за минала дата.";
+  }
+
+  if (!validatePhone(patientPhone)) {
+    return "Моля, въведете валиден телефонен номер.";
   }
 
   if (!validateEmail(patientEmail)) {
@@ -264,9 +315,10 @@ async function handleBooking(event) {
     if (!bookingResponse.ok) {
       if (
         bookingResponse.status === 409 &&
-        ["SLOT_TAKEN", "DAY_BLOCKED"].includes(result?.code)
+        ["SLOT_TAKEN", "DAY_BLOCKED", "HOUR_BLOCKED"].includes(result?.code)
       ) {
         showFormFeedback(result?.error || "Този час вече не е наличен.", "error");
+        availabilityCache.delete(payload.appointment_date);
         await renderHours(payload.appointment_date);
         return;
       }
@@ -288,6 +340,7 @@ async function handleBooking(event) {
       "success"
     );
 
+    availabilityCache.delete(payload.appointment_date);
     await renderHours(payload.appointment_date);
   } catch (error) {
     console.error(error);
@@ -307,6 +360,7 @@ function setSubmitting(isSubmitting) {
 
 function setHoursLoading(isLoading) {
   hoursLoading.hidden = !isLoading;
+  hoursGrid.setAttribute("aria-busy", String(isLoading));
 }
 
 function setHoursMessage(message, isError = false) {

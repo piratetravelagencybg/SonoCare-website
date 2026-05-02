@@ -3,6 +3,13 @@ const {
   supabaseInsert,
   supabaseSelect,
 } = require("../lib/supabase");
+const {
+  getBusinessHours,
+  isBookableSlot,
+  isPastDate,
+  isValidDateString,
+  isValidTimeString,
+} = require("../lib/booking");
 
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || "Sonocare.bg@gmail.com";
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
@@ -25,6 +32,8 @@ module.exports = async (request, response) => {
     return response.status(405).json({ error: "Method not allowed" });
   }
 
+  response.setHeader("Cache-Control", "no-store");
+
   try {
     const payload = normalizePayload(request.body);
     const validationError = validatePayload(payload);
@@ -33,7 +42,12 @@ module.exports = async (request, response) => {
       return response.status(400).json({ error: validationError, code: "VALIDATION_ERROR" });
     }
 
-    const blockedDay = await isBlockedDay(payload.appointment_date);
+    const [blockedDay, blockedHour, slotTaken] = await Promise.all([
+      isBlockedDay(payload.appointment_date),
+      isBlockedHour(payload.appointment_date, payload.appointment_time),
+      checkIfSlotTaken(payload.appointment_date, payload.appointment_time),
+    ]);
+
     if (blockedDay) {
       return response.status(409).json({
         error: "Тази дата не е налична за записване.",
@@ -41,7 +55,12 @@ module.exports = async (request, response) => {
       });
     }
 
-    const slotTaken = await checkIfSlotTaken(payload.appointment_date, payload.appointment_time);
+    if (blockedHour) {
+      return response.status(409).json({
+        error: "Този час не е наличен за записване.",
+        code: "HOUR_BLOCKED",
+      });
+    }
 
     if (slotTaken) {
       return response.status(409).json({
@@ -51,7 +70,7 @@ module.exports = async (request, response) => {
     }
 
     const insertedAppointment = await insertAppointment(payload);
-    const emailSent = await sendNotificationEmail(payload);
+    const emailSent = await sendNotificationEmail(payload).catch(() => false);
 
     return response.status(200).json({
       success: true,
@@ -101,6 +120,27 @@ function validatePayload(payload) {
     return "Моля, въведете валиден имейл адрес.";
   }
 
+  const phoneIsValid = /^[+\d][\d\s()-]{7,}$/.test(payload.patient_phone);
+  if (!phoneIsValid) {
+    return "Моля, въведете валиден телефонен номер.";
+  }
+
+  if (!isValidDateString(payload.appointment_date) || isPastDate(payload.appointment_date)) {
+    return "Моля, изберете валидна бъдеща дата.";
+  }
+
+  if (!isValidTimeString(payload.appointment_time)) {
+    return "Моля, изберете валиден час.";
+  }
+
+  if (!getBusinessHours(payload.appointment_date)) {
+    return "Кабинетът работи от понеделник до петък. Изберете работен ден.";
+  }
+
+  if (!isBookableSlot(payload.appointment_date, payload.appointment_time)) {
+    return "Избраният час е извън работното време на кабинета.";
+  }
+
   return "";
 }
 
@@ -130,6 +170,24 @@ async function checkIfSlotTaken(date, time) {
   });
 
   return Array.isArray(bookings) && bookings.length > 0;
+}
+
+async function isBlockedHour(date, time) {
+  try {
+    const blockedHours = await supabaseSelect("blocked_hours", {
+      select: "id",
+      date: `eq.${date}`,
+      time: `eq.${time}`,
+      limit: 1,
+    });
+
+    return Array.isArray(blockedHours) && blockedHours.length > 0;
+  } catch (error) {
+    if (isMissingRelationError(error)) {
+      return false;
+    }
+    throw error;
+  }
 }
 
 async function insertAppointment(payload) {

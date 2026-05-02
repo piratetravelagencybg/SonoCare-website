@@ -1176,11 +1176,6 @@ svg {
   padding: 20px;
 }
 
-.booking-form {
-  display: grid;
-  gap: 11px;
-}
-
 .booking-summary {
   display: grid;
   gap: 16px;
@@ -1225,27 +1220,6 @@ svg {
   width: 100%;
 }
 
-.booking-form input,
-.booking-form select {
-  min-height: 44px;
-  padding: 0 14px;
-  color: var(--navy);
-  border: 1px solid rgba(11, 50, 107, 0.12);
-  border-radius: 14px;
-  outline: none;
-  background: #fff;
-  font: 700 0.85rem var(--sans);
-}
-
-.booking-form .btn {
-  width: 168px;
-}
-
-.form-note {
-  min-height: 18px;
-  color: var(--navy);
-  font-weight: 800;
-}
 
 .contact-card {
   display: grid;
@@ -1264,6 +1238,12 @@ svg {
 }
 
 .contact-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.contact-card a:not(.contact-map-link) {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 700;

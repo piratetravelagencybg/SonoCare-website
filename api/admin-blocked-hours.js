@@ -5,6 +5,7 @@ const {
   supabaseInsert,
   supabaseSelect,
 } = require("../lib/supabase");
+const { isBookableSlot, isValidDateString, isValidTimeString } = require("../lib/booking");
 
 module.exports = async (request, response) => {
   const session = requireAdmin(request, response);
@@ -38,20 +39,48 @@ module.exports = async (request, response) => {
 
   if (request.method === "POST") {
     const date = String(request.body?.date || "").trim();
-    const time = String(request.body?.time || "").trim();
+    const singleTime = String(request.body?.time || "").trim();
+    const rawTimes = Array.isArray(request.body?.times) ? request.body.times : [];
+    const times = [...new Set([singleTime, ...rawTimes].map((value) => String(value || "").trim()).filter(Boolean))];
 
-    if (!date || !time) {
+    if (!isValidDateString(date) || !times.length) {
       return response.status(400).json({
-        error: "Моля, изберете дата и час.",
+        error: "Моля, изберете валидна дата и поне един час.",
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    if (times.some((time) => !isValidTimeString(time) || !isBookableSlot(date, time))) {
+      return response.status(400).json({
+        error: "Може да блокирате само валидни часове в работното време.",
         code: "VALIDATION_ERROR",
       });
     }
 
     try {
-      const created = await supabaseInsert("blocked_hours", { date, time });
+      const existing = await supabaseSelect("blocked_hours", {
+        select: "time",
+        date: `eq.${date}`,
+      });
+      const existingTimes = new Set((existing || []).map((item) => item.time));
+      const newTimes = times.filter((time) => !existingTimes.has(time));
+
+      if (!newTimes.length) {
+        return response.status(409).json({
+          error: "Избраните часове вече са блокирани.",
+          code: "HOUR_ALREADY_BLOCKED",
+        });
+      }
+
+      const created = await supabaseInsert(
+        "blocked_hours",
+        newTimes.map((time) => ({ date, time }))
+      );
+
       return response.status(200).json({
         success: true,
         blockedHour: created?.[0] || null,
+        blockedHours: created || [],
       });
     } catch (error) {
       console.error("admin-blocked-hours POST error", error);

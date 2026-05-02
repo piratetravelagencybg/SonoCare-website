@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SonoCare Admin | Dashboard</title>
+    <meta name="robots" content="noindex,nofollow" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -79,11 +80,11 @@
           <div class="admin-section-heading">
             <div>
               <h2>Часове и наличност</h2>
-              <p>Управление на записванията и блокиране на конкретни дни.</p>
+              <p>Управление на записванията и блокиране на конкретни дни и часове.</p>
             </div>
           </div>
 
-          <div class="admin-grid">
+          <div class="admin-grid two-up">
             <section class="admin-card">
               <div class="admin-card-header">
                 <h3>Блокирай ден</h3>
@@ -97,6 +98,30 @@
               </form>
               <div id="block-day-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
               <div id="blocked-days-list" class="admin-list"></div>
+            </section>
+
+            <section class="admin-card">
+              <div class="admin-card-header">
+                <h3>Блокирай часове</h3>
+              </div>
+              <form id="block-hours-form" class="admin-form">
+                <label>
+                  Дата
+                  <input id="block-hours-date" type="date" required />
+                </label>
+                <fieldset class="admin-time-picker">
+                  <legend class="admin-time-legend">Изберете един или няколко часа</legend>
+                  <div class="admin-time-options">
+                    <label class="admin-time-option"><input type="checkbox" name="blocked-times" value="16:00" />16:00</label>
+                    <label class="admin-time-option"><input type="checkbox" name="blocked-times" value="16:30" />16:30</label>
+                    <label class="admin-time-option"><input type="checkbox" name="blocked-times" value="17:00" />17:00</label>
+                    <label class="admin-time-option"><input type="checkbox" name="blocked-times" value="17:30" />17:30</label>
+                  </div>
+                </fieldset>
+                <button type="submit" class="admin-primary-button">Блокирай избраните часове</button>
+              </form>
+              <div id="block-hours-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
+              <div id="blocked-hours-list" class="admin-list"></div>
             </section>
           </div>
 

@@ -29,8 +29,7 @@ async function initializeLoginPage() {
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    feedback.textContent = "";
-    feedback.className = "admin-feedback";
+    setAdminFeedback(feedback, "");
     button.disabled = true;
     button.textContent = "Влизане...";
 
@@ -45,8 +44,7 @@ async function initializeLoginPage() {
 
       window.location.replace(result.redirectTo || "/admin/dashboard.html");
     } catch (error) {
-      feedback.textContent = error.message || "Неуспешен вход.";
-      feedback.className = "admin-feedback is-error";
+      setAdminFeedback(feedback, error.message || "Неуспешен вход.", "error");
     } finally {
       button.disabled = false;
       button.textContent = "Вход";
@@ -71,18 +69,22 @@ async function initializeDashboardPage() {
 
   document.querySelector("#admin-user-email").textContent = session.user?.email || "Администратор";
   document.querySelector("#blog-date").value = getToday();
+  document.querySelector("#block-day-date").min = getToday();
+  document.querySelector("#block-hours-date").min = getToday();
 
   bindDashboardNavigation();
   activateSectionFromHash();
   window.addEventListener("hashchange", activateSectionFromHash);
   bindLogout();
   bindBlockDayForm();
+  bindBlockHourForm();
   bindBlogForm();
 
-  await Promise.all([
+  await Promise.allSettled([
     loadOverview(),
     loadAppointments(),
     loadBlockedDays(),
+    loadBlockedHours(),
     loadBlogPosts(),
   ]);
 }
@@ -134,10 +136,10 @@ function bindBlockDayForm() {
     event.preventDefault();
     const date = document.querySelector("#block-day-date").value;
     const feedback = document.querySelector("#block-day-feedback");
+
     if (!date) return;
 
-    feedback.textContent = "";
-    feedback.className = "admin-feedback";
+    setAdminFeedback(feedback, "");
 
     try {
       await fetchJson("/api/admin-blocked-days", {
@@ -146,12 +148,48 @@ function bindBlockDayForm() {
       });
 
       event.currentTarget.reset();
-      feedback.textContent = "Денят е блокиран успешно.";
-      feedback.className = "admin-feedback is-success";
-      await Promise.all([loadBlockedDays(), loadOverview()]);
+      document.querySelector("#block-day-date").min = getToday();
+      setAdminFeedback(feedback, "Денят е блокиран успешно.", "success");
+      await Promise.allSettled([loadBlockedDays(), loadOverview()]);
     } catch (error) {
-      feedback.textContent = error.message || "Не успяхме да блокираме деня.";
-      feedback.className = "admin-feedback is-error";
+      setAdminFeedback(feedback, error.message || "Не успяхме да блокираме деня.", "error");
+    }
+  });
+}
+
+function bindBlockHourForm() {
+  document.querySelector("#block-hours-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const date = document.querySelector("#block-hours-date").value;
+    const feedback = document.querySelector("#block-hours-feedback");
+    const times = Array.from(
+      document.querySelectorAll('input[name="blocked-times"]:checked')
+    ).map((input) => input.value);
+
+    if (!date || !times.length) {
+      setAdminFeedback(feedback, "Изберете дата и поне един час.", "error");
+      return;
+    }
+
+    setAdminFeedback(feedback, "");
+
+    try {
+      const result = await fetchJson("/api/admin-blocked-hours", {
+        method: "POST",
+        body: { date, times },
+      });
+
+      event.currentTarget.reset();
+      document.querySelector("#block-hours-date").min = getToday();
+      const count = Array.isArray(result?.blockedHours) ? result.blockedHours.length : times.length;
+      setAdminFeedback(
+        feedback,
+        count > 1 ? `Блокирани са ${count} часа.` : "Часът е блокиран успешно.",
+        "success"
+      );
+      await loadBlockedHours();
+    } catch (error) {
+      setAdminFeedback(feedback, error.message || "Не успяхме да блокираме часа.", "error");
     }
   });
 }
@@ -171,11 +209,13 @@ function bindBlogForm() {
       const dataUrl = await readImageAsDataUrl(file);
       document.querySelector("#blog-image").value = dataUrl;
       renderBlogImagePreview(dataUrl);
-      feedback.textContent = "Снимката е добавена успешно.";
-      feedback.className = "admin-feedback is-success";
+      setAdminFeedback(feedback, "Снимката е добавена успешно.", "success");
     } catch (error) {
-      feedback.textContent = "Не успяхме да обработим снимката. Опитайте с друга снимка.";
-      feedback.className = "admin-feedback is-error";
+      setAdminFeedback(
+        feedback,
+        error.message || "Не успяхме да обработим снимката. Опитайте с друга снимка.",
+        "error"
+      );
     }
   });
 
@@ -183,8 +223,7 @@ function bindBlogForm() {
     document.querySelector("#blog-image").value = "";
     document.querySelector("#blog-image-file").value = "";
     renderBlogImagePreview("");
-    feedback.textContent = "Снимката беше премахната.";
-    feedback.className = "admin-feedback";
+    setAdminFeedback(feedback, "Снимката беше премахната.");
   });
 
   form?.addEventListener("submit", async (event) => {
@@ -193,8 +232,7 @@ function bindBlogForm() {
     const postId = document.querySelector("#blog-post-id").value;
     const submitButton = document.querySelector("#blog-submit-button");
 
-    feedback.textContent = "";
-    feedback.className = "admin-feedback";
+    setAdminFeedback(feedback, "");
     submitButton.disabled = true;
     submitButton.textContent = postId ? "Запазване..." : "Публикуване...";
 
@@ -218,13 +256,15 @@ function bindBlogForm() {
         });
       }
 
-      feedback.textContent = postId ? "Статията е обновена." : "Статията е публикувана.";
-      feedback.className = "admin-feedback is-success";
+      setAdminFeedback(
+        feedback,
+        postId ? "Статията е обновена." : "Статията е публикувана.",
+        "success"
+      );
       resetBlogForm();
-      await Promise.all([loadBlogPosts(), loadOverview()]);
+      await Promise.allSettled([loadBlogPosts(), loadOverview()]);
     } catch (error) {
-      feedback.textContent = error.message || "Не успяхме да запазим статията.";
-      feedback.className = "admin-feedback is-error";
+      setAdminFeedback(feedback, error.message || "Не успяхме да запазим статията.", "error");
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = postId ? "Запази промените" : "Публикувай";
@@ -299,7 +339,7 @@ async function loadAppointments() {
           method: "DELETE",
         });
 
-        await Promise.all([loadAppointments(), loadOverview()]);
+        await Promise.allSettled([loadAppointments(), loadOverview()]);
       } catch (error) {
         alert(error.message || "Не успяхме да изтрием записването.");
       }
@@ -310,6 +350,7 @@ async function loadAppointments() {
 async function loadBlockedDays() {
   const result = await fetchJson("/api/admin-blocked-days");
   const container = document.querySelector("#blocked-days-list");
+  const feedback = document.querySelector("#block-day-feedback");
 
   renderSimpleList(
     container,
@@ -333,13 +374,57 @@ async function loadBlockedDays() {
         await fetchJson(`/api/admin-blocked-days?id=${encodeURIComponent(button.dataset.blockedDayDelete)}`, {
           method: "DELETE",
         });
-        document.querySelector("#block-day-feedback").textContent = "";
-        document.querySelector("#block-day-feedback").className = "admin-feedback";
+        setAdminFeedback(feedback, "");
         await loadBlockedDays();
       } catch (error) {
-        document.querySelector("#block-day-feedback").textContent =
-          error.message || "Не успяхме да премахнем блокирания ден.";
-        document.querySelector("#block-day-feedback").className = "admin-feedback is-error";
+        setAdminFeedback(
+          feedback,
+          error.message || "Не успяхме да премахнем блокирания ден.",
+          "error"
+        );
+      }
+    });
+  });
+}
+
+async function loadBlockedHours() {
+  const result = await fetchJson("/api/admin-blocked-hours");
+  const container = document.querySelector("#blocked-hours-list");
+  const feedback = document.querySelector("#block-hours-feedback");
+
+  renderSimpleList(
+    container,
+    result.blockedHours,
+    (item) => `
+      <article class="admin-list-item">
+        <div class="admin-list-item-header">
+          <div>
+            <strong>${formatDate(item.date)}</strong>
+            <p>${escapeHtml(item.time || "")} ч.</p>
+          </div>
+          <div class="admin-list-actions">
+            <button class="admin-inline-button is-delete" type="button" data-blocked-hour-delete="${item.id}">Премахни</button>
+          </div>
+        </div>
+      </article>
+    `,
+    "Няма блокирани часове."
+  );
+
+  container.querySelectorAll("[data-blocked-hour-delete]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await fetchJson(`/api/admin-blocked-hours?id=${encodeURIComponent(button.dataset.blockedHourDelete)}`, {
+          method: "DELETE",
+        });
+        setAdminFeedback(feedback, "");
+        await loadBlockedHours();
+      } catch (error) {
+        setAdminFeedback(
+          feedback,
+          error.message || "Не успяхме да премахнем блокирания час.",
+          "error"
+        );
       }
     });
   });
@@ -354,7 +439,7 @@ async function loadBlogPosts() {
     result.posts,
     (post) => `
       <article class="admin-list-item">
-        ${post.image ? `<img class="admin-post-preview" src="${escapeAttribute(post.image)}" alt="${escapeAttribute(post.title || "Статия")}" />` : ""}
+        ${post.image ? `<img class="admin-post-preview" src="${escapeAttribute(post.image)}" alt="${escapeAttribute(post.title || "Статия")}" loading="lazy" decoding="async" />` : ""}
         <div class="admin-list-item-header">
           <div>
             <strong>${escapeHtml(post.title || "")}</strong>
@@ -393,7 +478,7 @@ async function loadBlogPosts() {
           method: "DELETE",
         });
 
-        await Promise.all([loadBlogPosts(), loadOverview()]);
+        await Promise.allSettled([loadBlogPosts(), loadOverview()]);
       } catch (error) {
         alert(error.message || "Не успяхме да изтрием статията.");
       }
@@ -421,11 +506,12 @@ function resetBlogForm() {
   document.querySelector("#blog-form-title").textContent = "Нова статия";
   document.querySelector("#blog-submit-button").textContent = "Публикувай";
   document.querySelector("#blog-reset-button").hidden = true;
-  document.querySelector("#blog-form-feedback").textContent = "";
-  document.querySelector("#blog-form-feedback").className = "admin-feedback";
-  document.querySelector("#block-day-feedback").textContent = "";
-  document.querySelector("#block-day-feedback").className = "admin-feedback";
+  setAdminFeedback(document.querySelector("#blog-form-feedback"), "");
+  setAdminFeedback(document.querySelector("#block-day-feedback"), "");
+  setAdminFeedback(document.querySelector("#block-hours-feedback"), "");
   document.querySelector("#blog-date").value = getToday();
+  document.querySelector("#block-day-date").min = getToday();
+  document.querySelector("#block-hours-date").min = getToday();
   renderBlogImagePreview("");
 }
 
@@ -443,6 +529,7 @@ function renderSimpleList(container, items, itemRenderer, emptyText) {
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, {
     method: options.method || "GET",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
@@ -481,11 +568,21 @@ function renderBlogImagePreview(image) {
 
   preview.hidden = false;
   if (clearButton) clearButton.hidden = false;
-  preview.innerHTML = `<img src="${escapeAttribute(image)}" alt="Преглед на снимката" />`;
+  preview.innerHTML = `<img src="${escapeAttribute(image)}" alt="Преглед на снимката" loading="lazy" decoding="async" />`;
 }
 
 function readImageAsDataUrl(file) {
   return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("Моля, качете файл със снимка."));
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      reject(new Error("Снимката е твърде голяма. Изберете файл до 8 MB."));
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -498,17 +595,29 @@ function readImageAsDataUrl(file) {
         canvas.width = Math.round(image.width * scale);
         canvas.height = Math.round(image.height * scale);
         const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("Не успяхме да обработим изображението."));
+          return;
+        }
+
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/jpeg", 0.78));
       };
 
-      image.onerror = reject;
+      image.onerror = () => reject(new Error("Файлът не може да бъде обработен като изображение."));
       image.src = String(reader.result || "");
     };
 
-    reader.onerror = reject;
+    reader.onerror = () => reject(new Error("Не успяхме да прочетем файла."));
     reader.readAsDataURL(file);
   });
+}
+
+function setAdminFeedback(element, message, type = "") {
+  if (!element) return;
+  element.textContent = message;
+  element.className = `admin-feedback${type ? ` is-${type}` : ""}`;
 }
 
 function getToday() {
@@ -534,7 +643,7 @@ function formatDateTime(value) {
 }
 
 function trimText(value, limit) {
-  const text = String(value || "");
+  const text = String(value || "").replace(/\s+/g, " ").trim();
   return text.length > limit ? `${text.slice(0, limit).trim()}…` : text;
 }
 

@@ -1,10 +1,13 @@
 const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
+const { mapPublicPost } = require("../lib/blog");
 
 module.exports = async (request, response) => {
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     return response.status(405).json({ error: "Method not allowed." });
   }
+
+  response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
 
   try {
     const posts = await supabaseSelect("blog_posts", {
@@ -13,7 +16,7 @@ module.exports = async (request, response) => {
     });
 
     return response.status(200).json({
-      posts: posts || [],
+      posts: (posts || []).map(mapPublicPost),
     });
   } catch (error) {
     if (isMissingRelationError(error)) {

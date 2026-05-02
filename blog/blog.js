@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   const isListPage =
     window.location.pathname === "/blog" ||
     window.location.pathname.endsWith("/blog/") ||
@@ -35,12 +35,16 @@ async function loadBlogList() {
       .map(
         (post) => `
           <article class="blog-card">
-            ${post.image ? `<img src="${escapeAttribute(post.image)}" alt="${escapeAttribute(post.title || "Статия")}" />` : ""}
+            ${
+              post.image
+                ? `<img src="${escapeAttribute(post.image)}" alt="${escapeAttribute(post.title || "Статия")}" loading="lazy" decoding="async" />`
+                : ""
+            }
             <div class="blog-card-body">
               <span class="blog-card-date">${formatDate(post.created_at)}</span>
               <h2>${escapeHtml(post.title || "")}</h2>
-              <p>${escapeHtml(trimText(post.content || "", 170))}</p>
-              <a class="blog-card-link" href="/blog/post.html?id=${encodeURIComponent(post.id)}">Прочети статията</a>
+              <p>${escapeHtml(post.excerpt || "")}</p>
+              <a class="blog-card-link" href="/blog/post.html?id=${encodeURIComponent(post.id)}&slug=${encodeURIComponent(post.slug || "")}">Прочети статията</a>
             </div>
           </article>
         `
@@ -74,10 +78,24 @@ async function loadSinglePost() {
       return;
     }
 
-    document.title = `SonoCare | ${post.title}`;
+    const slug = post.slug || "";
+    const canonicalUrl = `https://www.sonocare.bg/blog/post.html?id=${encodeURIComponent(post.id)}${
+      slug ? `&slug=${encodeURIComponent(slug)}` : ""
+    }`;
+
+    document.title = `${post.title} | SonoCare Blog`;
+    upsertMetaTag("name", "description", post.excerpt || "Полезна статия от SonoCare.");
+    upsertMetaTag("property", "og:title", `${post.title} | SonoCare Blog`);
+    upsertMetaTag("property", "og:description", post.excerpt || "Полезна статия от SonoCare.");
+    if (post.image) {
+      upsertMetaTag("property", "og:image", post.image);
+    }
+    upsertCanonicalLink(canonicalUrl);
+    renderArticleStructuredData(post, canonicalUrl);
+
     feedback.textContent = "";
     container.innerHTML = `
-      ${post.image ? `<img class="single-post-image" src="${escapeAttribute(post.image)}" alt="${escapeAttribute(post.title || "Статия")}" />` : ""}
+      ${post.image ? `<img class="single-post-image" src="${escapeAttribute(post.image)}" alt="${escapeAttribute(post.title || "Статия")}" decoding="async" />` : ""}
       <span class="eyebrow">SonoCare Blog</span>
       <h1>${escapeHtml(post.title || "")}</h1>
       <p class="single-post-meta">${formatDate(post.created_at)}</p>
@@ -90,7 +108,7 @@ async function loadSinglePost() {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url, { cache: "no-store" });
+  const response = await fetch(url);
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -118,9 +136,64 @@ function formatDate(value) {
   }).format(new Date(value));
 }
 
-function trimText(value, limit) {
-  const text = String(value || "").replace(/\s+/g, " ").trim();
-  return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
+function upsertMetaTag(attributeName, attributeValue, content) {
+  if (!content) return;
+
+  let element = document.head.querySelector(`meta[${attributeName}="${attributeValue}"]`);
+
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attributeName, attributeValue);
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute("content", content);
+}
+
+function upsertCanonicalLink(href) {
+  let link = document.head.querySelector('link[rel="canonical"]');
+
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "canonical");
+    document.head.appendChild(link);
+  }
+
+  link.setAttribute("href", href);
+}
+
+function renderArticleStructuredData(post, url) {
+  let script = document.querySelector("#blog-article-structured-data");
+
+  if (!script) {
+    script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "blog-article-structured-data";
+    document.body.appendChild(script);
+  }
+
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title || "",
+    datePublished: post.created_at || "",
+    dateModified: post.created_at || "",
+    mainEntityOfPage: url,
+    image: post.image ? [post.image] : undefined,
+    description: post.excerpt || "",
+    author: {
+      "@type": "Organization",
+      name: "SonoCare",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "SonoCare",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.sonocare.bg/logo.png",
+      },
+    },
+  });
 }
 
 function escapeHtml(value) {
