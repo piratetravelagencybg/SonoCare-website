@@ -1,7 +1,17 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 
-Disallow: /admin/
-Disallow: /api/
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
 
 Sitemap: https://www.sonocare.bg/sitemap.xml
+

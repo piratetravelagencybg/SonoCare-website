@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const isLoginPage =
     window.location.pathname === "/admin" ||
     window.location.pathname.endsWith("/admin/") ||
@@ -661,3 +661,4 @@ function escapeHtml(value) {
 function escapeAttribute(value) {
   return escapeHtml(value);
 }
+

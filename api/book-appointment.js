@@ -10,6 +10,7 @@ const {
   isValidDateString,
   isValidTimeString,
 } = require("../lib/booking");
+const { handleCorsPreflight, setPublicCorsHeaders } = require("../lib/cors");
 
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || "Sonocare.bg@gmail.com";
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
@@ -27,6 +28,12 @@ const REQUIRED_FIELDS = [
 ];
 
 module.exports = async (request, response) => {
+  if (handleCorsPreflight(request, response)) {
+    return;
+  }
+
+  setPublicCorsHeaders(response);
+
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     return response.status(405).json({ error: "Method not allowed" });

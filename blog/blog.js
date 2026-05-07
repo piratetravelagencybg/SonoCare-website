@@ -1,4 +1,5 @@
 (function () {
+  const API_BASE = getApiBaseUrl();
   const isListPage =
     window.location.pathname === "/blog" ||
     window.location.pathname.endsWith("/blog/") ||
@@ -6,22 +7,22 @@
   const isPostPage = window.location.pathname.endsWith("/blog/post.html");
 
   if (isListPage) {
-    loadBlogList();
+    loadBlogList(API_BASE);
   }
 
   if (isPostPage) {
-    loadSinglePost();
+    loadSinglePost(API_BASE);
   }
 })();
 
-async function loadBlogList() {
+async function loadBlogList(apiBase) {
   const grid = document.querySelector("#blog-posts-grid");
   const feedback = document.querySelector("#blog-feedback");
 
   feedback.textContent = "Зареждане на статиите...";
 
   try {
-    const result = await fetchJson("/api/blog-posts");
+    const result = await fetchJson(`${apiBase}/api/blog-posts`);
     const posts = result.posts || [];
 
     if (!posts.length) {
@@ -56,7 +57,7 @@ async function loadBlogList() {
   }
 }
 
-async function loadSinglePost() {
+async function loadSinglePost(apiBase) {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
   const container = document.querySelector("#single-post");
@@ -70,7 +71,7 @@ async function loadSinglePost() {
   feedback.textContent = "Зареждане на статия...";
 
   try {
-    const result = await fetchJson(`/api/blog-post?id=${encodeURIComponent(id)}`);
+    const result = await fetchJson(`${apiBase}/api/blog-post?id=${encodeURIComponent(id)}`);
     const post = result.post;
 
     if (!post) {
@@ -207,4 +208,11 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
   return escapeHtml(value);
+}
+
+function getApiBaseUrl() {
+  const host = window.location.hostname;
+  return host === "127.0.0.1" || host === "localhost" || host === "::1"
+    ? "https://www.sonocare.bg"
+    : "";
 }

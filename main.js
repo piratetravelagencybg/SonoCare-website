@@ -1,4 +1,4 @@
-const BUSINESS_HOURS = {
+﻿const BUSINESS_HOURS = {
   weekday: { start: "16:00", end: "18:00" },
 };
 
@@ -12,6 +12,7 @@ const bookingForm = document.querySelector("#booking-form");
 const selectedTimeInput = document.querySelector("#selected-time");
 const submitButton = document.querySelector("#submit-button");
 const feedback = document.querySelector("#form-feedback");
+const API_BASE = getApiBaseUrl();
 
 let selectedTime = "";
 let bookedHours = [];
@@ -103,7 +104,7 @@ async function fetchAvailability(date, signal) {
     return availabilityCache.get(date);
   }
 
-  const response = await fetch(`/api/booking-availability?date=${encodeURIComponent(date)}`, {
+  const response = await fetch(`${API_BASE}/api/booking-availability?date=${encodeURIComponent(date)}`, {
     cache: "no-store",
     signal,
   });
@@ -302,7 +303,7 @@ async function handleBooking(event) {
   setSubmitting(true);
 
   try {
-    const bookingResponse = await fetch("/api/book-appointment", {
+    const bookingResponse = await fetch(`${API_BASE}/api/book-appointment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -377,3 +378,11 @@ function clearFormFeedback() {
   feedback.textContent = "";
   feedback.className = "form-feedback";
 }
+
+function getApiBaseUrl() {
+  const host = window.location.hostname;
+  return host === "127.0.0.1" || host === "localhost" || host === "::1"
+    ? "https://www.sonocare.bg"
+    : "";
+}
+

@@ -1,7 +1,14 @@
 const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
 const { getAvailableSlotsForDate, isValidDateString } = require("../lib/booking");
+const { handleCorsPreflight, setPublicCorsHeaders } = require("../lib/cors");
 
 module.exports = async (request, response) => {
+  if (handleCorsPreflight(request, response)) {
+    return;
+  }
+
+  setPublicCorsHeaders(response);
+
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     return response.status(405).json({ error: "Method not allowed." });

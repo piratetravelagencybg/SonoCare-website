@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f5f8fc;
   --surface: #ffffff;
   --surface-soft: #f8fbff;
@@ -403,6 +403,50 @@ svg {
   margin-top: 16px;
 }
 
+.booking-services-links {
+  margin-top: 18px;
+}
+
+.booking-services-links h3 {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.booking-services-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.booking-service-link {
+  display: block;
+  padding: 15px 16px;
+  border: 1px solid rgba(29, 63, 142, 0.1);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(227, 241, 255, 0.7), transparent 42%),
+    linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  box-shadow: 0 14px 28px rgba(13, 43, 96, 0.07);
+}
+
+.booking-service-link strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 900;
+}
+
+.booking-service-link span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .hour-button {
   min-height: 46px;
   padding: 0 8px;
@@ -686,6 +730,7 @@ svg {
     display: none;
   }
 }
+
 
 
 

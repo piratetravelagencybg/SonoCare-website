@@ -1,0 +1,17 @@
+﻿# SonoCare
+> Специализиран кабинет за ехография и образна диагностика в Благоевград, България.
+
+## Услуги
+- [Ехография на щитовидна жлеза](https://www.sonocare.bg/services/thyroid-ultrasound.html)
+- [Ехография на коремни органи](https://www.sonocare.bg/services/abdominal-ultrasound.html)
+- [Ехография на млечни жлези](https://www.sonocare.bg/services/breast-ultrasound.html)
+
+## Записване
+- [Запази час](https://www.sonocare.bg/booking.html)
+
+## За нас
+SonoCare предлага специализирана ехографска диагностика в Благоевград с модерна апаратура. Без направление. Резултат в деня на прегледа.
+
+## Местоположение
+Благоевград, България
+

@@ -1,9 +1,16 @@
 ﻿<!doctype html>
 <html lang="bg">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Статия от SonoCare Blog за профилактика и образна диагностика." />
+    <meta name="robots" content="index, follow" />
+    <meta name="geo.region" content="BG-01" />
+    <meta name="geo.placename" content="Благоевград" />
+    <meta property="og:title" content="Статия | SonoCare Блог" />
+    <meta property="og:description" content="Полезна статия от SonoCare Блог за ехография, профилактика и образна диагностика." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://www.sonocare.bg/blog/post.html" />
     <link rel="canonical" href="https://www.sonocare.bg/blog/post.html" />
     <title>SonoCare | Статия</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,13 +20,22 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/blog/blog.css" />
+    <link rel="stylesheet" href="/blog/styles.min.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Статия | SonoCare Блог",
+        "description": "Полезна статия от SonoCare Блог за ехография, профилактика и образна диагностика.",
+        "url": "https://www.sonocare.bg/blog/post.html"
+      }
+    </script>
   </head>
   <body>
     <main class="blog-shell">
       <header class="blog-header">
         <a class="blog-brand" href="../index.html" aria-label="SonoCare начало">
-          <img src="../logo.png" alt="SonoCare" />
+          <img src="../logo.png" alt="Лого на SonoCare" />
         </a>
         <a class="blog-back" href="index.html">Назад към блога</a>
       </header>
@@ -28,9 +44,10 @@
       <div id="blog-feedback" class="blog-feedback" role="status" aria-live="polite"></div>
     </main>
 
-    <script src="/blog/blog.js"></script>
+    <script src="/blog/blog.js?v=3"></script>
   </body>
 </html>
+
 
 
 

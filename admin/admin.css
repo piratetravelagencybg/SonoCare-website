@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f3f7fc;
   --surface: rgba(255, 255, 255, 0.96);
   --surface-soft: rgba(247, 250, 255, 0.95);
@@ -608,3 +608,4 @@ img {
     width: 100%;
   }
 }
+

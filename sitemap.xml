@@ -1,24 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.sonocare.bg/index.html</loc>
-  </url>
-  <url>
-    <loc>https://www.sonocare.bg/booking.html</loc>
-  </url>
-  <url>
-    <loc>https://www.sonocare.bg/doctor.html</loc>
-  </url>
-  <url>
-    <loc>https://www.sonocare.bg/blog/</loc>
-  </url>
-  <url>
-    <loc>https://www.sonocare.bg/services/breast-ultrasound.html</loc>
-  </url>
-  <url>
-    <loc>https://www.sonocare.bg/services/abdominal-ultrasound.html</loc>
+    <loc>https://www.sonocare.bg/</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.sonocare.bg/services/thyroid-ultrasound.html</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.sonocare.bg/services/abdominal-ultrasound.html</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.sonocare.bg/services/breast-ultrasound.html</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.sonocare.bg/booking.html</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.sonocare.bg/blog/</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
+

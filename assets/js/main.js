@@ -1,5 +1,6 @@
 const topbar = document.querySelector(".topbar");
 const menuButton = document.querySelector(".menu-btn");
+const API_BASE = getApiBaseUrl();
 
 document.querySelectorAll("img").forEach((image) => {
   image.addEventListener("error", () => {
@@ -71,7 +72,7 @@ async function loadHomeBlogPosts() {
   homeBlogTrack.innerHTML = '<div class="home-blog-status">Зареждане на последните статии...</div>';
 
   try {
-    const response = await fetch("/api/blog-posts");
+    const response = await fetch(`${API_BASE}/api/blog-posts`);
     const result = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -126,4 +127,11 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function getApiBaseUrl() {
+  const host = window.location.hostname;
+  return host === "127.0.0.1" || host === "localhost" || host === "::1"
+    ? "https://www.sonocare.bg"
+    : "";
 }

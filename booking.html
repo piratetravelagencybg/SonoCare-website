@@ -1,14 +1,21 @@
 ﻿<!doctype html>
 <html lang="bg">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Онлайн записване на час в SonoCare – бърза и удобна система за избор на услуга, дата и свободен час."
+      content="Запазете час за ехография в SonoCare Благоевград онлайн или по телефон. Без направление. Бърз преглед с резултат в деня →"
     />
+    <meta name="robots" content="index, follow" />
+    <meta name="geo.region" content="BG-01" />
+    <meta name="geo.placename" content="Благоевград" />
+    <meta property="og:title" content="Запази Час за Ехография в Благоевград | SonoCare" />
+    <meta property="og:description" content="Запазете час за ехография в SonoCare Благоевград онлайн или по телефон. Без направление. Бърз преглед с резултат в деня." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.sonocare.bg/booking.html" />
     <link rel="canonical" href="https://www.sonocare.bg/booking.html" />
-    <title>SonoCare | Запази час</title>
+    <title>Запази Час за Ехография в Благоевград | SonoCare</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="icon" type="image/png" href="/icon.png" />
@@ -16,13 +23,33 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=3" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "MedicalWebPage",
+        "name": "Запази Час за Ехография в Благоевград | SonoCare",
+        "description": "Онлайн записване за ехография в SonoCare Благоевград без направление.",
+        "url": "https://www.sonocare.bg/booking.html",
+        "about": {
+          "@type": "MedicalBusiness",
+          "name": "SonoCare",
+          "telephone": "+359879262675",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "ул. Димитър Димов 11",
+            "addressLocality": "Благоевград",
+            "addressCountry": "BG"
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <main class="booking-page">
       <header class="topbar booking-topbar" aria-label="Основна навигация">
         <a class="logo-link booking-logo" href="index.html" aria-label="SonoCare начало">
-          <img src="logo.png" alt="SonoCare" />
+          <img src="logo.png" alt="Лого на SonoCare" />
         </a>
         <button class="menu-btn" type="button" aria-label="Меню"><i></i><i></i><i></i></button>
       </header>
@@ -30,7 +57,7 @@
       <section class="booking-hero">
         <div class="booking-hero-copy">
           <span class="eyebrow">Онлайн записване</span>
-          <h1>Изберете удобен час за преглед.</h1>
+          <h1>Запази Час за Ехография в Благоевград</h1>
           <p>
             Спокоен и ясен процес за записване на ехографски преглед с бърз избор на дата, час и услуга.
           </p>
@@ -90,6 +117,9 @@
             <div id="hours-grid" class="hours-grid" aria-label="Свободни часове"></div>
           </section>
 
+          <p>Запазването на час в SonoCare е лесно и бързо. Попълнете формата по-долу или се обадете директно на телефона ни. Приемаме пациенти <strong>без направление</strong> — не е нужно да чакате при личен лекар.</p>
+          <p>След записването ще получите потвърждение с точния час и кратка информация за подготовката преди прегледа.</p>
+
           <form id="booking-form" novalidate>
             <div class="booking-field">
               <label for="patient-name">Вашето име</label>
@@ -144,6 +174,37 @@
               <span>Запази час</span>
             </button>
           </form>
+
+          <section class="hours-panel booking-info">
+            <div class="hours-panel-header">
+              <div>
+                <h2>Какво да очаквате</h2>
+              </div>
+            </div>
+            <ul class="detail-list">
+              <li>Прегледът отнема 15-25 минути в зависимост от вида на изследването</li>
+              <li>Получавате писмено заключение в деня на прегледа</li>
+              <li>При нужда от подготовка ще бъдете информирани при записването</li>
+            </ul>
+            <p>Въпроси? <a href="tel:+359879262675">Обадете се на 0879 262 675</a></p>
+            <div class="booking-services-links">
+              <h3>Разгледайте нашите услуги</h3>
+              <div class="booking-services-grid">
+                <a class="booking-service-link" href="/services/thyroid-ultrasound.html">
+                  <strong>Щитовидна жлеза</strong>
+                  <span>Преглед при възли, гуша и структурни промени</span>
+                </a>
+                <a class="booking-service-link" href="/services/abdominal-ultrasound.html">
+                  <strong>Коремни органи</strong>
+                  <span>Черен дроб, жлъчен мехур, панкреас, бъбреци и още</span>
+                </a>
+                <a class="booking-service-link" href="/services/breast-ultrasound.html">
+                  <strong>Млечни жлези</strong>
+                  <span>Профилактика и ранно установяване на промени</span>
+                </a>
+              </div>
+            </div>
+          </section>
         </div>
       </section>
     </main>
@@ -153,10 +214,11 @@
       <a href="#booking-title">Запази час</a>
     </nav>
 
-    <script src="assets/js/main.js?v=2"></script>
-    <script type="module" src="main.js"></script>
+    <script src="assets/js/main.js?v=6"></script>
+    <script type="module" src="main.js?v=3"></script>
   </body>
 </html>
+
 
 
 
