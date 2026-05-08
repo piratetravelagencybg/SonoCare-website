@@ -151,6 +151,13 @@ img {
   box-shadow: 0 0 0 4px rgba(29, 63, 142, 0.08);
 }
 
+.admin-field-hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .admin-upload-field {
   display: grid;
   gap: 10px;

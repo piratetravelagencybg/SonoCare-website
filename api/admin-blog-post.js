@@ -1,5 +1,11 @@
 const { requireAdmin } = require("../lib/admin-auth");
-const { supabaseDelete, supabaseSelect, supabaseUpdate } = require("../lib/supabase");
+const { getBlogPostSelect, mapAdminPost, slugify } = require("../lib/blog");
+const {
+  isMissingColumnError,
+  supabaseDelete,
+  supabaseSelect,
+  supabaseUpdate,
+} = require("../lib/supabase");
 
 module.exports = async (request, response) => {
   const session = requireAdmin(request, response);
@@ -19,14 +25,10 @@ module.exports = async (request, response) => {
 
   if (request.method === "GET") {
     try {
-      const posts = await supabaseSelect("blog_posts", {
-        select: "id,title,content,image,created_at",
-        id: `eq.${id}`,
-        limit: 1,
-      });
+      const posts = await selectSingleAdminPost(id);
 
       return response.status(200).json({
-        post: posts?.[0] || null,
+        post: posts?.[0] ? mapAdminPost(posts[0]) : null,
       });
     } catch (error) {
       console.error("admin-blog-post GET error", error);
@@ -39,6 +41,7 @@ module.exports = async (request, response) => {
 
   if (request.method === "PUT") {
     const title = String(request.body?.title || "").trim();
+    const slug = slugify(request.body?.slug || title);
     const content = String(request.body?.content || "").trim();
     const image = String(request.body?.image || "").trim();
     const createdAt = String(request.body?.created_at || "").trim();
@@ -51,20 +54,17 @@ module.exports = async (request, response) => {
     }
 
     try {
-      const updated = await supabaseUpdate(
-        "blog_posts",
-        { id: `eq.${id}` },
-        {
-          title,
-          content,
-          image: image || null,
-          created_at: createdAt || new Date().toISOString(),
-        }
-      );
+      const updated = await updateAdminPost(id, {
+        title,
+        slug,
+        content,
+        image: image || null,
+        created_at: createdAt || new Date().toISOString(),
+      });
 
       return response.status(200).json({
         success: true,
-        post: updated?.[0] || null,
+        post: updated?.[0] ? mapAdminPost(updated[0]) : null,
       });
     } catch (error) {
       console.error("admin-blog-post PUT error", error);
@@ -91,3 +91,36 @@ module.exports = async (request, response) => {
   response.setHeader("Allow", "GET, PUT, DELETE");
   return response.status(405).json({ error: "Method not allowed." });
 };
+
+async function selectSingleAdminPost(id) {
+  try {
+    return await supabaseSelect("blog_posts", {
+      select: getBlogPostSelect(true),
+      id: `eq.${id}`,
+      limit: 1,
+    });
+  } catch (error) {
+    if (!isMissingColumnError(error, "slug")) {
+      throw error;
+    }
+
+    return supabaseSelect("blog_posts", {
+      select: getBlogPostSelect(false),
+      id: `eq.${id}`,
+      limit: 1,
+    });
+  }
+}
+
+async function updateAdminPost(id, values) {
+  try {
+    return await supabaseUpdate("blog_posts", { id: `eq.${id}` }, values);
+  } catch (error) {
+    if (!isMissingColumnError(error, "slug")) {
+      throw error;
+    }
+
+    const { slug, ...fallbackValues } = values;
+    return supabaseUpdate("blog_posts", { id: `eq.${id}` }, fallbackValues);
+  }
+}

@@ -1,5 +1,5 @@
-const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
-const { buildExcerpt, slugify } = require("../lib/blog");
+const { buildExcerpt, getBlogPostSelect, normalizePostSlug } = require("../lib/blog");
+const { isMissingColumnError, isMissingRelationError, supabaseSelect } = require("../lib/supabase");
 const { handleCorsPreflight, setPublicCorsHeaders } = require("../lib/cors");
 
 module.exports = async (request, response) => {
@@ -17,26 +17,23 @@ module.exports = async (request, response) => {
   response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
 
   const id = getRequestParam(request, "id");
+  const slug = getRequestParam(request, "slug");
 
-  if (!id) {
+  if (!id && !slug) {
     return response.status(400).json({
-      error: "Missing blog post id.",
+      error: "Missing blog post reference.",
       code: "VALIDATION_ERROR",
     });
   }
 
   try {
-    const posts = await supabaseSelect("blog_posts", {
-      select: "id,title,content,image,created_at",
-      id: `eq.${id}`,
-      limit: 1,
-    });
+    const posts = await selectPublicPost({ id, slug });
 
     return response.status(200).json({
       post: posts?.[0]
         ? {
             ...posts[0],
-            slug: slugify(posts[0].title || ""),
+            slug: normalizePostSlug(posts[0]),
             excerpt: buildExcerpt(posts[0].content || "", 180),
           }
         : null,
@@ -53,6 +50,44 @@ module.exports = async (request, response) => {
     });
   }
 };
+
+async function selectPublicPost(reference) {
+  if (reference.slug) {
+    try {
+      return await supabaseSelect("blog_posts", {
+        select: getBlogPostSelect(true),
+        slug: `eq.${reference.slug}`,
+        limit: 1,
+      });
+    } catch (error) {
+      if (!isMissingColumnError(error, "slug")) {
+        throw error;
+      }
+    }
+  }
+
+  if (!reference.id) {
+    return [];
+  }
+
+  try {
+    return await supabaseSelect("blog_posts", {
+      select: getBlogPostSelect(true),
+      id: `eq.${reference.id}`,
+      limit: 1,
+    });
+  } catch (error) {
+    if (!isMissingColumnError(error, "slug")) {
+      throw error;
+    }
+
+    return supabaseSelect("blog_posts", {
+      select: getBlogPostSelect(false),
+      id: `eq.${reference.id}`,
+      limit: 1,
+    });
+  }
+}
 
 function getRequestParam(request, key) {
   const directValue = String(request.query?.[key] || "").trim();

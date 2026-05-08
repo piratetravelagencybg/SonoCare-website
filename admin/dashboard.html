@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/admin/styles.min.css" />
+    <link rel="stylesheet" href="/admin/admin.css?v=2" />
   </head>
   <body class="admin-dashboard-page">
     <main class="admin-shell">
@@ -156,6 +156,11 @@
                   <input id="blog-title" type="text" required />
                 </label>
                 <label>
+                  SEO адрес (slug)
+                  <input id="blog-slug" type="text" placeholder="primerna-statiya-za-ehografiya" />
+                  <span class="admin-field-hint">Попълва се автоматично от заглавието, но може да се редактира ръчно.</span>
+                </label>
+                <label>
                   Дата
                   <input id="blog-date" type="date" required />
                 </label>
@@ -188,7 +193,7 @@
       </section>
     </main>
 
-    <script src="/admin/scripts.min.js"></script>
+    <script src="/admin/admin.js?v=2"></script>
   </body>
 </html>
 

@@ -45,7 +45,7 @@ async function loadBlogList(apiBase) {
               <span class="blog-card-date">${formatDate(post.created_at)}</span>
               <h2>${escapeHtml(post.title || "")}</h2>
               <p>${escapeHtml(post.excerpt || "")}</p>
-              <a class="blog-card-link" href="/blog/post.html?id=${encodeURIComponent(post.id)}&slug=${encodeURIComponent(post.slug || "")}">Прочети статията</a>
+              <a class="blog-card-link" href="${buildBlogPostUrl(post)}">Прочети статията</a>
             </div>
           </article>
         `
@@ -60,10 +60,11 @@ async function loadBlogList(apiBase) {
 async function loadSinglePost(apiBase) {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
+  const slug = params.get("slug");
   const container = document.querySelector("#single-post");
   const feedback = document.querySelector("#blog-feedback");
 
-  if (!id) {
+  if (!id && !slug) {
     feedback.textContent = "Липсва статия за зареждане.";
     return;
   }
@@ -71,7 +72,7 @@ async function loadSinglePost(apiBase) {
   feedback.textContent = "Зареждане на статия...";
 
   try {
-    const result = await fetchJson(`${apiBase}/api/blog-post?id=${encodeURIComponent(id)}`);
+    const result = await fetchJson(`${apiBase}/api/blog-post?${buildPostQuery({ id, slug })}`);
     const post = result.post;
 
     if (!post) {
@@ -79,10 +80,7 @@ async function loadSinglePost(apiBase) {
       return;
     }
 
-    const slug = post.slug || "";
-    const canonicalUrl = `https://www.sonocare.bg/blog/post.html?id=${encodeURIComponent(post.id)}${
-      slug ? `&slug=${encodeURIComponent(slug)}` : ""
-    }`;
+    const canonicalUrl = `https://www.sonocare.bg${buildBlogPostUrl(post)}`;
 
     document.title = `${post.title} | SonoCare Blog`;
     upsertMetaTag("name", "description", post.excerpt || "Полезна статия от SonoCare.");
@@ -202,12 +200,33 @@ function escapeHtml(value) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
+    .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
 
 function escapeAttribute(value) {
   return escapeHtml(value);
+}
+
+function buildBlogPostUrl(post) {
+  const slug = String(post?.slug || "").trim();
+  if (slug) {
+    return `/blog/post.html?slug=${encodeURIComponent(slug)}`;
+  }
+
+  return `/blog/post.html?id=${encodeURIComponent(post?.id || "")}`;
+}
+
+function buildPostQuery(params) {
+  const query = new URLSearchParams();
+
+  if (params?.slug) {
+    query.set("slug", params.slug);
+  } else if (params?.id) {
+    query.set("id", params.id);
+  }
+
+  return query.toString();
 }
 
 function getApiBaseUrl() {

@@ -1,5 +1,5 @@
-const { isMissingRelationError, supabaseSelect } = require("../lib/supabase");
-const { mapPublicPost } = require("../lib/blog");
+const { getBlogPostSelect, mapPublicPost } = require("../lib/blog");
+const { isMissingColumnError, isMissingRelationError, supabaseSelect } = require("../lib/supabase");
 const { handleCorsPreflight, setPublicCorsHeaders } = require("../lib/cors");
 
 module.exports = async (request, response) => {
@@ -17,10 +17,7 @@ module.exports = async (request, response) => {
   response.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
 
   try {
-    const posts = await supabaseSelect("blog_posts", {
-      select: "id,title,content,image,created_at",
-      order: "created_at.desc",
-    });
+    const posts = await selectPublicPosts();
 
     return response.status(200).json({
       posts: (posts || []).map(mapPublicPost),
@@ -37,3 +34,21 @@ module.exports = async (request, response) => {
     });
   }
 };
+
+async function selectPublicPosts() {
+  try {
+    return await supabaseSelect("blog_posts", {
+      select: getBlogPostSelect(true),
+      order: "created_at.desc",
+    });
+  } catch (error) {
+    if (!isMissingColumnError(error, "slug")) {
+      throw error;
+    }
+
+    return supabaseSelect("blog_posts", {
+      select: getBlogPostSelect(false),
+      order: "created_at.desc",
+    });
+  }
+}
