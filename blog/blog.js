@@ -209,29 +209,42 @@ function escapeAttribute(value) {
 }
 
 function buildBlogPostUrl(post) {
+  const id = String(post?.id || "").trim();
   const slug = String(post?.slug || "").trim();
-  if (slug) {
-    return `/blog/post.html?slug=${encodeURIComponent(slug)}`;
+  const query = new URLSearchParams();
+
+  if (id) {
+    query.set("id", id);
   }
 
-  return `/blog/post.html?id=${encodeURIComponent(post?.id || "")}`;
+  if (slug) {
+    query.set("slug", slug);
+  }
+
+  return `/blog/post.html?${query.toString()}`;
 }
 
 function buildPostQuery(params) {
   const query = new URLSearchParams();
 
+  if (params?.id) {
+    query.set("id", params.id);
+  }
+
   if (params?.slug) {
     query.set("slug", params.slug);
-  } else if (params?.id) {
-    query.set("id", params.id);
   }
 
   return query.toString();
 }
 
 function getApiBaseUrl() {
+  if (window.location.protocol === "file:") {
+    return "https://www.sonocare.bg";
+  }
+
   const host = window.location.hostname;
-  return host === "127.0.0.1" || host === "localhost" || host === "::1"
+  return !host || host === "127.0.0.1" || host === "localhost" || host === "::1"
     ? "https://www.sonocare.bg"
     : "";
 }

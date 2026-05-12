@@ -54,11 +54,15 @@ module.exports = async (request, response) => {
 async function selectPublicPost(reference) {
   if (reference.slug) {
     try {
-      return await supabaseSelect("blog_posts", {
+      const slugPosts = await supabaseSelect("blog_posts", {
         select: getBlogPostSelect(true),
         slug: `eq.${reference.slug}`,
         limit: 1,
       });
+
+      if (slugPosts?.length) {
+        return slugPosts;
+      }
     } catch (error) {
       if (!isMissingColumnError(error, "slug")) {
         throw error;

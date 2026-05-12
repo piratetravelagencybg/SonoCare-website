@@ -130,8 +130,12 @@ function escapeHtml(value) {
 }
 
 function getApiBaseUrl() {
+  if (window.location.protocol === "file:") {
+    return "https://www.sonocare.bg";
+  }
+
   const host = window.location.hostname;
-  return host === "127.0.0.1" || host === "localhost" || host === "::1"
+  return !host || host === "127.0.0.1" || host === "localhost" || host === "::1"
     ? "https://www.sonocare.bg"
     : "";
 }

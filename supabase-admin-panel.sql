@@ -36,10 +36,15 @@ create unique index if not exists blocked_hours_unique_slot
 create table if not exists public.blog_posts (
   id uuid primary key default gen_random_uuid(),
   title text not null,
+  slug text,
   content text not null,
   image text,
   created_at timestamp with time zone not null default now()
 );
+
+create unique index if not exists blog_posts_slug_unique
+  on public.blog_posts (slug)
+  where slug is not null;
 
 alter table public.appointments enable row level security;
 alter table public.blocked_days enable row level security;
