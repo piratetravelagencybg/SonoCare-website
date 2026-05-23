@@ -693,10 +693,9 @@ svg {
 }
 
 .service-detail .detail-list li {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
+  position: relative;
+  display: block;
+  padding-left: 32px;
   text-align: left;
   color: var(--navy);
   font-size: 0.98rem;
@@ -705,7 +704,9 @@ svg {
 }
 
 .service-detail .detail-list li::before {
-  margin-top: 4px;
+  position: absolute;
+  top: 0.2rem;
+  left: 0;
 }
 
 .service-detail .detail-list li strong {
